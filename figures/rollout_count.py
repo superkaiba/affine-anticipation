@@ -21,8 +21,8 @@ the figure path borrows from those siblings are in
 Note: the submitted PDF carries a post-hoc heading band rewrite, applied by a
 separate tool that replaced the two panel headings without touching any plotted
 value ("A Variance explained" / "B Answer retrieval" in place of this script's
-kicker-plus-title pairs). ``figures/reference/c1_rollout_count.headings.json``
-records that substitution.
+kicker-plus-title pairs). The ``heading_migration`` block of
+``figures/reference/c1_rollout_count.meta.json`` records that substitution.
 """
 
 from __future__ import annotations
