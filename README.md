@@ -5,16 +5,28 @@ Are Largely Linearly Predictable from Context*.
 
 The repository has two tiers:
 
-- **Figures from records (tested).** Every figure in the paper regenerates
-  from the result records committed under `records/` with one command. A
-  test compares each regenerated figure's displayed data against the
-  sidecar of the submitted PDF in `figures/reference/`.
+- **Figures from records (tested).** All 22 paper figures regenerate from the
+  result records committed under `records/` with one command. The test suite
+  regenerates every one of them and checks that it writes a non-empty PDF.
+  Beyond that the checks differ by figure. Where the submitted PDF shipped a
+  sidecar that carries its displayed data, the regenerated sidecar is compared
+  against it leaf for leaf. The remaining figures are compared against a
+  regression baseline committed here, which records this repository's own first
+  render and so says nothing about the paper. 21 of the 22 have at least one
+  drawn number under comparison. The exception is the standalone legend for
+  Figure 2, which draws no data.
 - **Experiment pipeline (archived).** The code that produced those records:
   answer generation and activation capture, metamodel fitting, retrieval
-  evaluation, and the per-section analyses. It is documented per record in
-  [`pipeline/README.md`](pipeline/README.md) and points at the public
-  Hugging Face repositories that hold the activation banks, generated-answer
-  banks and fitted maps. It is not packaged as an end-to-end reproduction.
+  evaluation, and the per-section analyses. It was ported from the research
+  repository the work was done in, *explore-persona-space* (EPS,
+  https://github.com/superkaiba/explore-persona-space), whose name and issue
+  numbers the module docstrings and record paths still carry. It is documented
+  per record in [`pipeline/README.md`](pipeline/README.md) and points at the
+  public Hugging Face repositories that hold the activation banks,
+  generated-answer banks and fitted maps. It is not packaged as an end-to-end
+  reproduction. Its GPU and corpus paths need `transformers`, `vllm`,
+  `datasets`, `wandb`, `psutil` and `requests` on top of the `pipeline` extra.
+  Those are left undeclared because that tier is not a reproduction path.
 
 ## Install
 
@@ -24,15 +36,29 @@ pip install -e ".[dev]"          # numpy, scipy, matplotlib, pytest
 pip install -e ".[pipeline]"     # add torch, huggingface_hub, API clients (tier 2 only)
 ```
 
-Python 3.11 or later. Figures render with the Inter font when it is
-installed and fall back to Noto Sans or DejaVu Sans otherwise.
+Python 3.11 or later, and the Inter font:
+
+```bash
+sudo apt-get install fonts-inter          # Debian, Ubuntu
+```
+
+Three generators require Inter and raise without it, because the canvas-fit
+guard in `context_answer/plotting/style.py` is calibrated to its text metrics
+and refuses content wider than the canvas. They are
+`figures/controls_and_scaling.py` (`c1_controls_and_scaling`,
+`c1_controls_and_scaling_legend`, `c1_layer_sweep`),
+`figures/ctxans_geometry.py` (`c3_ctxans_geometry`) and
+`figures/preimage_qualitative_top100.py` (`c5_preimage_qualitative_top100`),
+five paper figures between them. The other 17 fall back to Noto Sans or
+DejaVu Sans and render with slightly different text metrics.
 
 ## Regenerate the figures
 
 ```bash
 python -m figures.make_all                 # every paper figure -> out/
 python -m figures.make_all --only c3_sae_tier_gradient
-pytest                                     # regenerate and compare against figures/reference/
+pytest                                     # regenerate, then compare against
+                                           # figures/reference/ and figures/baseline/
 ```
 
 Each generator is a module under `figures/` with a
@@ -72,6 +98,16 @@ Each generator is a module under `figures/` with a
 `figures/reference/` holds the PDF of each figure as submitted and, where
 the generator wrote one, its provenance sidecar (`<stem>.meta.json`: inputs
 with checksums, the displayed data, the rendering environment).
+`figures/reference/fig1_schematic.pdf` is the submitted outlined TikZ build. It
+has no generator here, and `pytest` does not cover it.
+
+`figures/baseline/` holds the regression baselines: the data blocks of this
+repository's own first render, for the stems whose submitted sidecar cannot
+serve as a check, because it either shipped no sidecar or shipped one recording
+settings and prose but no plotted values. A baseline carries evidence about this
+repository alone. It fails when a change to a generator, a record, or the shared
+fitting and plotting code moves a drawn value. Rewrite the baselines
+deliberately with `python tests/refresh_baselines.py`, and commit the diff.
 
 ## Records
 
@@ -79,6 +115,13 @@ with checksums, the displayed data, the rendering environment).
 experiment pipeline wrote it to. The pipeline README maps every record to
 the script that produced it and to the Hugging Face prefix holding the raw
 inputs it was computed from.
+
+Records and the submitted sidecars in `figures/reference/` are committed
+byte-identical to the research repository, so they carry the provenance
+metadata they were computed with: EPS issue numbers, Hugging Face revisions,
+checksums, timestamps, and file paths from the machine that produced them.
+Those paths describe where a value came from and are not paths into this
+repository. The figure tests ignore them for that reason.
 
 ## Data and models
 
