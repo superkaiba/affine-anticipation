@@ -25,6 +25,30 @@ class Generator:
 
 GENERATORS: tuple[Generator, ...] = (
     Generator(
+        module="figures.controls_and_scaling",
+        stems=("c1_controls_and_scaling", "c1_controls_and_scaling_legend", "c1_layer_sweep"),
+        sections="Introduction (Figure 2), Appendix A.8",
+        source="scripts/make_paper_figure2.py",
+    ),
+    Generator(
+        module="figures.crosslayer_grid",
+        stems=("c1_crosslayer_grid",),
+        sections="Appendix A.8",
+        source="scripts/paper_fig_crosslayer_grid.py",
+    ),
+    Generator(
+        module="figures.rollout_count",
+        stems=("c1_rollout_count",),
+        sections="Appendix A.12",
+        source="scripts/issue1901_k_rollout_ablation.py",
+    ),
+    Generator(
+        module="figures.posttraining_dynamics",
+        stems=("c1_posttraining_dynamics",),
+        sections="Section 4.3",
+        source="scripts/section43_posttraining_onpolicy_figure.py",
+    ),
+    Generator(
         module="figures.section42",
         stems=(
             "c3_direction_r2_spectrum",
