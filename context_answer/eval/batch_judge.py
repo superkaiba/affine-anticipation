@@ -528,7 +528,7 @@ def _submit_and_poll_batch(
     """Submit ``requests`` (sharded), poll each sub-batch until it ends, collect.
 
     Signature-stable for the two live ``scripts/experiment_019`` callers
-    (``run_experiment_389.py`` / ``rejudge_experiment_019_c_strict.py``), which pass
+    (``run_experiment_019.py`` / ``rejudge_experiment_019_c_strict.py``), which pass
     ``(requests, client, poll_interval=30.0)`` and consume the returned
     ``{custom_id: score_dict}`` dict. The rewrite (#663) hardens this in place
     so those callers inherit:
