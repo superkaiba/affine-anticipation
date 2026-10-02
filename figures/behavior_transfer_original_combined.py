@@ -7,9 +7,8 @@ remain unchanged.  Exports a full-width vector figure and its review/provenance
 files.
 
 Ported from EPS ``scripts/issue1739_old_combined_figure.py`` at commit
-6a4e20115ee4d4fd2d8f1e9e6dd1ba6ff9a3cbd4 on branch
-``codex/1739-covariance-ablation-20260916`` (EPS issue 1739), the commit that
-introduced both the script and the figure.  The script is on no other branch and
+6a4e20115ee4d4fd2d8f1e9e6dd1ba6ff9a3cbd4 (EPS issue 1739),
+the commit that introduced both the script and the figure.  The script is on no other branch and
 in no working tree, so it is extracted with ``git show``.
 
 Input: ``records/issue_1739/old_four_method_figure_20260917/summary.json``

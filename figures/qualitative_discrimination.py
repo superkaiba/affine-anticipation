@@ -9,7 +9,7 @@ The display-ready text and evaluation provenance live in
 ``records/issue_1901/content_divergent_retrieval_examples_10k.json``.
 
 Ported from EPS ``scripts/issue1901_qualitative_retrieval_failures.py`` at
-commit 891435c16f6 on branch ``codex/appendix-review-20260921`` (EPS issue
+commit 891435c16f6 of the research repository (EPS issue
 1901).  That commit, not EPS main, is the version that rendered the submitted
 figure: on 2026-09-23 the appendix moved to the 10,000-candidate retrieval
 evaluation, which changed both the banked record and the two row ids.  EPS main
@@ -46,8 +46,8 @@ DEFAULT_RECORDS = ROOT / "records"
 DEFAULT_OUT = ROOT / "out"
 INPUT_RELPATH = Path("issue_1901/content_divergent_retrieval_examples_10k.json")
 STEM = "c3_qualitative_discrimination"
-# Manuscript selection (Thomas 2026-09-03: "change figure 4 to only have 2 examples",
-# drop the Django pair). Updated to the 10,000-candidate pairs on 2026-09-23.
+# Manuscript selection: two examples (the Django pair was dropped), updated to the
+# 10,000-candidate pairs on 2026-09-23.
 # Pass --row-ids all to render every banked row.
 MANUSCRIPT_ROW_IDS: tuple[str, ...] = (
     "vocabulary_to_cloud_computing_quiz",

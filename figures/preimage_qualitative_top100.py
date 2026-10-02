@@ -6,9 +6,8 @@ three-row table: the behavior direction, the prompt categories found among its
 top 100, and literal excerpts from individual ranked prompts.
 
 Ported from EPS ``scripts/issue1739_qualitative_preimage_figure.py`` at commit
-709cef84784c3fe5d1cbb19f5a0ac29b9e0e9fb2 on branch
-``codex/1739-covariance-ablation-20260916`` (EPS issue 1739), the commit that
-introduced both the script and the figure.  The script is on no other branch and
+709cef84784c3fe5d1cbb19f5a0ac29b9e0e9fb2 (EPS issue 1739),
+the commit that introduced both the script and the figure.  The script is on no other branch and
 in no working tree, so it is extracted with ``git show``.
 
 Inputs.  Upstream the script read one spec,

@@ -7,9 +7,8 @@ source-vector deduplication, whitening, and strict two-sided CSLS retrieval.
 No inference, fitting or rescoring occurs; lines join measured points only.
 
 Ported from EPS ``scripts/issue1901_distractor_curve.py`` at commit
-938c13bf0d3b1f3c8dd19ca15b7ee1b2b17b6c5f on branch
-``codex/1901-retrieval-10k-20260907`` (EPS issue 1901), which is the commit that
-introduced both the script and the figure.  Upstream the figure stem was
+938c13bf0d3b1f3c8dd19ca15b7ee1b2b17b6c5f (EPS issue 1901),
+the commit that introduced both the script and the figure.  Upstream the figure stem was
 ``distractor_curve``; the submission renamed it ``c1_distractor_scaling``.
 
 Inputs: ``records/issue_1901/singleturn_retrieval_final/summary.json`` (the

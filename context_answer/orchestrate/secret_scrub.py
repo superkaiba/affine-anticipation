@@ -38,12 +38,9 @@ placeholders (``XXXX…``, ``example``, ``YOUR_``) are filtered by
 too (its living-document header) — and keep this file in that config's
 path allowlist, since it necessarily contains secret-shaped regexes.
 
-False-positive lesson worth keeping: HF's "Lob" detector matches long
-snake_case pytest/Java identifiers (``test_<35 chars>``) in security-code
-corpora — 81 "Lob (status: active)" detections across two emails
-contained ZERO Lob-format keys under any documented or reverse-engineered
-pattern. Do not chase an HF detector name; scan the flagged bytes
-yourself.
+Detector names from a hosting service are not a substitute for scanning the
+flagged bytes: long snake_case identifiers in code corpora trip key-shaped
+pattern matchers, so verify every hit against the documented key format.
 """
 
 from __future__ import annotations

@@ -12,7 +12,7 @@ Input is ONE result record, the fit summary at
 every run.
 
 Ported from ``scripts/section43_posttraining_onpolicy_figure.py`` (commit
-``3511b6aadaf``, branch ``codex/appendix-terminology-20260923``) of the
+``3511b6aadaf``) of the
 ``explore-persona-space`` research repository, where this result was produced
 under issue 1902. That revision is the one that rendered the submitted figure:
 the research repository's main branch is two revisions behind and still draws
