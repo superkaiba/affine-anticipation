@@ -1,0 +1,388 @@
+#!/usr/bin/env python3
+"""Paper figure ``c1_crosslayer_grid`` -- the 28x28 cross-layer ridge grid.
+
+Appendix section A.8. Two heatmap panels over (context layer, answer layer)
+cells of the cross-layer ridge grid: held-out R^2 and top-1 retrieval (whitened
+cosine + CSLS). Style, canvas scale, fonts, and export come from
+``context_answer.plotting.style``; the exported PDF is checked to be full text
+width (942.857 pt) with only the resolved paper font embedded. The optional
+bootstrap contrast file is printed to stdout, never drawn.
+
+Ported from ``scripts/paper_fig_crosslayer_grid.py`` (commit ``6f77ae72910``)
+of the ``explore-persona-space`` research repository, where this result was
+produced under issue 1901. The figure body, colour scaling, and assertions are
+unchanged; the inputs now come from ``records/`` and the outputs go to an
+``--out`` directory.
+
+Note: the submitted PDF carries a post-hoc heading band rewrite, applied by a
+separate tool that replaced the two panel headings without touching any plotted
+value ("A Held-out R2" / "B Top-1 retrieval" in place of this script's panel
+titles). ``figures/reference/c1_crosslayer_grid.headings.json`` records that
+substitution.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import re
+import shutil
+import subprocess
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.patches import Rectangle
+
+from context_answer.plotting.style import (
+    GRID,
+    INK,
+    PAPER,
+    ROLES,
+    STYLE_VERSION,
+    c2a_figure,
+    canvas_width_in,
+    panel_header,
+    save_c2a_figure,
+    set_c2a_style,
+    style_axis,
+)
+from context_answer.provenance import git_provenance
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_RECORDS = REPO_ROOT / "records"
+DEFAULT_OUT = REPO_ROOT / "out"
+
+RECORD_PATHS: dict[str, str] = {
+    "grid": "issue_1901/xlayer_grid/grid.json",
+    "bootstrap": "issue_1901/xlayer_grid/bootstrap.json",
+}
+"""Result records this figure reads, relative to the ``--records`` directory.
+
+The relative paths are the producing repository's ``eval_results/`` paths with
+that prefix removed. The bootstrap contrast is optional.
+"""
+
+OUT_STEM = "c1_crosslayer_grid"
+
+
+def _cell_matrix(grid: dict, extract) -> np.ndarray:
+    """Dense (context layer, answer layer) matrix; NaN where a cell is absent."""
+
+    layers_c, layers_a = grid["layers_c"], grid["layers_a"]
+    out = np.full((len(layers_c), len(layers_a)), np.nan)
+    for i, lc in enumerate(layers_c):
+        row = grid["cells"].get(str(lc), {})
+        for j, la in enumerate(layers_a):
+            cell = row.get(str(la))
+            if cell is not None:
+                out[i, j] = float(extract(cell))
+    return out
+
+
+def _load_grid(path: Path) -> dict:
+    source = json.loads(path.read_text())
+    layers_c = [int(v) for v in source["layers_c"]]
+    layers_a = [int(v) for v in source["layers_a"]]
+    assert layers_c == sorted(layers_c) and layers_a == sorted(layers_a)
+    grid = {"layers_c": layers_c, "layers_a": layers_a, "cells": source["cells"]}
+    r2 = _cell_matrix(grid, lambda c: c["ridge"]["whole_map_r2"])
+    top1 = _cell_matrix(grid, lambda c: c["ridge"]["retrieval"]["whiten_csls"]["acc_at_k"]["1"])
+    identity_r2 = _cell_matrix(grid, lambda c: c["identity_bias"]["whole_map_r2"])
+    lam = _cell_matrix(grid, lambda c: c["fit_meta"]["selected_lambda"])
+    present = ~np.isnan(r2)
+    assert present.any(), f"no cells present in {path}"
+    assert np.all(r2[present] <= 1.0 + 1e-9)
+    assert np.all((top1[~np.isnan(top1)] >= 0.0) & (top1[~np.isnan(top1)] <= 1.0))
+    any_cell = next(iter(next(iter(source["cells"].values())).values()))
+    return {
+        "layers_c": layers_c,
+        "layers_a": layers_a,
+        "r2": r2,
+        "top1": top1,
+        "identity_r2": identity_r2,
+        "selected_lambda": lam,
+        "n_train": int(any_cell["n_train"]),
+        "chance_at_1": float(any_cell["ridge"]["chance_at_1"]),
+        "n_cells_present": int(present.sum()),
+    }
+
+
+def _layer_ticks(layers: list[int]) -> tuple[list[int], list[str]]:
+    """Every 4th layer labeled (0, 4, ..., 24) plus the last layer; small subsets in full."""
+
+    if len(layers) <= 10:
+        return list(range(len(layers))), [str(v) for v in layers]
+    positions = [i for i, v in enumerate(layers) if v % 4 == 0 or i == len(layers) - 1]
+    return positions, [str(layers[i]) for i in positions]
+
+
+def _heat_panel(
+    fig: plt.Figure,
+    ax: plt.Axes,
+    grid: dict,
+    matrix: np.ndarray,
+    *,
+    letter: str,
+    kicker: str,
+    title: str,
+    vmin: float | None = None,
+) -> dict:
+    layers_c, layers_a = grid["layers_c"], grid["layers_a"]
+    cmap = LinearSegmentedColormap.from_list("c2a_seq_teal", [PAPER, ROLES["linear"].color])
+    cmap.set_bad(GRID)
+    masked = np.ma.masked_invalid(matrix)
+    vmax = float(np.nanmax(matrix))
+    if vmin is None:
+        # Data-driven floor: the grid minimum rounded down to 0.05, never below 0, so the
+        # 0.05-scale differences between cells stay legible (a 0..max scale renders a
+        # 0.48..0.81 grid as a single teal block).
+        vmin = max(0.0, float(np.floor(np.nanmin(matrix) * 20.0) / 20.0))
+    im = ax.imshow(masked, origin="lower", cmap=cmap, vmin=vmin, vmax=vmax, aspect="equal")
+
+    # Diagonal (equal-layer) cells: thin outlines. Grid maximum: heavy outline.
+    for i, lc in enumerate(layers_c):
+        for j, la in enumerate(layers_a):
+            if lc == la and not np.isnan(matrix[i, j]):
+                ax.add_patch(
+                    Rectangle(
+                        (j - 0.5, i - 0.5), 1, 1, fill=False, edgecolor=INK, lw=0.9, alpha=0.7
+                    )
+                )
+    i_max, j_max = np.unravel_index(np.nanargmax(matrix), matrix.shape)
+    ax.add_patch(Rectangle((j_max - 0.5, i_max - 0.5), 1, 1, fill=False, edgecolor=INK, lw=2.4))
+
+    style_axis(ax, grid_axis="none")
+    x_pos, x_lab = _layer_ticks(layers_a)
+    y_pos, y_lab = _layer_ticks(layers_c)
+    ax.set_xticks(x_pos, x_lab)
+    ax.set_yticks(y_pos, y_lab)
+    ax.set_xlabel("Answer layer")
+    ax.set_ylabel("Context layer")
+    if kicker:
+        panel_header(ax, letter, kicker, title)
+    else:
+        # Metadata-free panel: the eyebrow carries only the panel letter. panel_header
+        # renders a dangling "A  \u00b7  " for an empty kicker, so the letter goes in the
+        # kicker slot instead. The row stays occupied, so no whitespace band opens up.
+        panel_header(ax, "", letter, title)
+
+    cb = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    cb.outline.set_visible(False)
+    cb.ax.tick_params(length=0, pad=6)
+    return {
+        "max_cell": {"layer_c": layers_c[i_max], "layer_a": layers_a[j_max]},
+        "max_value": float(matrix[i_max, j_max]),
+        "value_range": [float(np.nanmin(matrix)), vmax],
+        "color_vmin": vmin,
+    }
+
+
+def make_figure(grid: dict) -> tuple[plt.Figure, float, dict]:
+    set_c2a_style()
+    fig, include_frac = c2a_figure("full", aspect=0.46)
+    gs = fig.add_gridspec(1, 2, left=0.06, right=0.96, top=0.78, bottom=0.11, wspace=0.30)
+    ax_r2 = fig.add_subplot(gs[0, 0])
+    ax_top1 = fig.add_subplot(gs[0, 1])
+
+    r2_min = float(np.nanmin(grid["r2"]))
+    panel_a = _heat_panel(
+        fig,
+        ax_r2,
+        grid,
+        grid["r2"],
+        letter="A",
+        # Training-context count removed from the canvas: the caption states
+        # "one ridge map fit on 50,000 LMSYS contexts and scored on 1,000 held-out contexts".
+        kicker="",
+        title="Held-out $R^2$ of the ridge map",
+    )
+    if r2_min < 0.0:
+        print(f"note: {int((grid['r2'] < 0).sum())} cells have R^2 < 0; color floor clamps at 0")
+    panel_b = _heat_panel(
+        fig,
+        ax_top1,
+        grid,
+        grid["top1"],
+        letter="B",
+        kicker=f"chance {grid['chance_at_1']:.1%}",
+        title="Top-1 retrieval of the ridge map",
+    )
+    return fig, include_frac, {"r2": panel_a, "top1": panel_b}
+
+
+def _print_bootstrap_headline(path: Path) -> None:
+    contrasts = json.loads(path.read_text())["contrasts"]
+    for name in ("r2", "acc1_wcsls"):
+        c = contrasts[name]
+        best, off = c["best_diag_cell"], c["best_offdiag_cell"]
+        fixed, aware = c["fixed_cells_ci"], c["selection_aware_ci"]
+        print(
+            f"bootstrap {name}: best diag c{best['layer_c']}:a{best['layer_a']} vs "
+            f"best offdiag c{off['layer_c']}:a{off['layer_a']}; "
+            f"diff {c['point_diff']:+.4f} "
+            f"(fixed 95% CI [{fixed['lo']:+.4f}, {fixed['hi']:+.4f}]; "
+            f"selection-aware [{aware['lo']:+.4f}, {aware['hi']:+.4f}])"
+        )
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        while chunk := handle.read(8 << 20):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _git_state() -> dict[str, str | bool | None]:
+    """Commit and tracked-worktree cleanliness of the checkout that rendered."""
+
+    prov = git_provenance()
+    return {"commit": prov.commit_sha_full, "tracked_worktree_dirty": prov.dirty}
+
+
+def _display_path(path: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return str(resolved.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(resolved)
+
+
+def _assert_pdf_width(pdf: Path, expected_pt: float, tol_pt: float = 0.5) -> float | None:
+    """Check the exported page width, or return None when ``pdfinfo`` is absent."""
+
+    if shutil.which("pdfinfo") is None:
+        print("note: pdfinfo not found; skipping the exported PDF width check")
+        return None
+    info = subprocess.run(["pdfinfo", str(pdf)], check=True, capture_output=True, text=True)
+    match = re.search(r"Page size:\s+([\d.]+) x ([\d.]+) pts", info.stdout)
+    if match is None:
+        raise RuntimeError(f"could not parse page size from pdfinfo output for {pdf}")
+    width = float(match.group(1))
+    if abs(width - expected_pt) > tol_pt:
+        raise AssertionError(f"{pdf} is {width} pt wide; expected {expected_pt:.3f} +/- {tol_pt}")
+    return width
+
+
+def _assert_paper_font_only(pdf: Path, font: str) -> list[str] | None:
+    """Check only ``font`` is embedded, or return None when the check cannot run.
+
+    The paper was typeset with Inter. On a machine where Inter is not installed
+    the style module falls back to the next font in its chain, so the check is
+    made against the font that actually resolved rather than the literal
+    "Inter"; without ``pdffonts`` it is skipped.
+    """
+
+    if shutil.which("pdffonts") is None:
+        print("note: pdffonts not found; skipping the embedded-font check")
+        return None
+    out = subprocess.run(["pdffonts", str(pdf)], check=True, capture_output=True, text=True)
+    lines = out.stdout.splitlines()
+    fonts = [line.split()[0] for line in lines[2:] if line.strip()]
+    if not fonts:
+        raise AssertionError(f"{pdf} embeds no fonts at all")
+    stem = font.replace(" ", "")
+    foreign = [name for name in fonts if stem not in name]
+    if foreign:
+        raise AssertionError(f"{pdf} embeds fonts other than {font}: {foreign}")
+    return fonts
+
+
+def main(records_dir: Path = DEFAULT_RECORDS, out_dir: Path = DEFAULT_OUT) -> list[Path]:
+    """Render the cross-layer grid figure; return the files written."""
+
+    grid_path = records_dir / RECORD_PATHS["grid"]
+    if not grid_path.is_file():
+        raise FileNotFoundError(f"missing result record: {grid_path}")
+    bootstrap_path: Path | None = records_dir / RECORD_PATHS["bootstrap"]
+    if bootstrap_path is not None and not bootstrap_path.is_file():
+        bootstrap_path = None
+        print(f"note: no bootstrap.json next to {grid_path}; skipping the headline contrast")
+    out_stem = out_dir / OUT_STEM
+
+    grid = _load_grid(grid_path)
+    print(
+        f"grid: {len(grid['layers_c'])}x{len(grid['layers_a'])} layers, "
+        f"{grid['n_cells_present']} cells present"
+    )
+
+    git_state = _git_state()
+    font = set_c2a_style()
+    fig, include_frac, panels = make_figure(grid)
+    outputs = save_c2a_figure(
+        fig,
+        out_stem,
+        title="Cross-layer ridge grid",
+        subject="Held-out R^2 and top-1 retrieval over (context layer, answer layer) cells",
+        creator="figures/crosslayer_grid.py",
+        include_width=include_frac,
+    )
+    plt.close(fig)
+
+    metadata = out_stem.with_suffix(".meta.json")
+    metadata.write_text(
+        json.dumps(
+            {
+                "status": "cross-layer ridge grid appendix figure",
+                "style_version": STYLE_VERSION,
+                "plotting_script": "figures/crosslayer_grid.py",
+                "style_module": "context_answer/plotting/style.py",
+                "reproduction_command": "python figures/crosslayer_grid.py",
+                "git": git_state,
+                "sources": {
+                    "grid": {"path": _display_path(grid_path), "sha256": _sha256(grid_path)},
+                    "bootstrap": (
+                        {"path": _display_path(bootstrap_path), "sha256": _sha256(bootstrap_path)}
+                        if bootstrap_path is not None
+                        else None
+                    ),
+                },
+                "layers_c": grid["layers_c"],
+                "layers_a": grid["layers_a"],
+                "panels": panels,
+                "plotted": {
+                    "r2": np.where(np.isnan(grid["r2"]), None, grid["r2"].round(6)).tolist(),
+                    "top1": np.where(np.isnan(grid["top1"]), None, grid["top1"].round(6)).tolist(),
+                    "identity_bias_r2": np.where(
+                        np.isnan(grid["identity_r2"]), None, grid["identity_r2"].round(6)
+                    ).tolist(),
+                    "selected_lambda": np.where(
+                        np.isnan(grid["selected_lambda"]), None, grid["selected_lambda"]
+                    ).tolist(),
+                },
+                "save_record": outputs["record"],
+                "output_sha256": {
+                    kind: _sha256(path) for kind, path in outputs.items() if isinstance(path, Path)
+                },
+            },
+            indent=2,
+        )
+        + "\n"
+    )
+
+    expected_pt = canvas_width_in(include_frac) * 72.0
+    width_pt = _assert_pdf_width(outputs["pdf"], expected_pt=expected_pt)
+    fonts = _assert_paper_font_only(outputs["pdf"], font)
+    if width_pt is not None:
+        print(f"pdf width: {width_pt} pt (expected {expected_pt:.3f})")
+    if fonts is not None:
+        print(f"embedded fonts: {fonts}")
+    if bootstrap_path is not None:
+        _print_bootstrap_headline(bootstrap_path)
+    written: list[Path] = []
+    for kind, path in {**outputs, "metadata": metadata}.items():
+        if isinstance(path, Path):
+            print(f"{kind}: {path}")
+            written.append(path)
+    return written
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--records", type=Path, default=DEFAULT_RECORDS)
+    parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    args = parser.parse_args()
+    main(args.records, args.out)
