@@ -1,0 +1,215 @@
+{
+  "status": "Results Section 4.2 manuscript figure",
+  "style_version": "c2a-v2",
+  "plotting_script": "scripts/make_paper_section42_figures.py",
+  "style_module": "src/explore_persona_space/analysis/c2a_plot_style.py",
+  "reproduction_command": "uv run --extra viz python scripts/paper_figure_headings.py",
+  "title": "SAE feature properties and context-to-answer predictability",
+  "subject": "Conditional feature-property associations and activity-adjusted nested-tier gradient, decoder-direction target",
+  "git": {
+    "commit": "e78f95c91a8c3cfc2f29010f98d56272dc8f8b89",
+    "tracked_worktree_dirty": true
+  },
+  "sources": [
+    {
+      "path": "eval_results/issue_1482/plot4_redesign/plot4_decoder_direction.json",
+      "sha256": "7225e1f6de5086e980ef8ef3c2bc0d65e276166f6758252972b2920b01b1528f"
+    }
+  ],
+  "render": {
+    "style_version": "c2a-v2",
+    "style_module": "src/explore_persona_space/analysis/c2a_plot_style.py",
+    "resolved_font": "Inter",
+    "authoring_size_inches": [
+      13.095,
+      4.916
+    ],
+    "exported_size_inches": [
+      13.095,
+      4.916
+    ],
+    "scale": 0.42,
+    "include_width_frac": 1.0,
+    "latex_include_line": "\\includegraphics[width=\\textwidth]{figures/paper/c3_sae_tier_gradient.pdf}",
+    "realized_font_pt": {
+      "body": 7.56,
+      "tick": 7.14,
+      "label": 8.4,
+      "title": 9.24
+    },
+    "png_dpi": 240,
+    "background": "#FFFFFF",
+    "text": [
+      "A Feature properties",
+      "B Feature R\u00b2 by tier",
+      "-0.1",
+      "0",
+      "+0.1",
+      "+0.2 +0.3",
+      "Concordance with feature R2, above chance",
+      "variance along decoder direction",
+      "speaker identity / disposition",
+      "promotes specific output tokens",
+      "suppresses specific output tokens",
+      "topic content",
+      "Coarsest",
+      "Middle",
+      "Finest",
+      "Nested SAE tier",
+      "\u22120.1",
+      "0.0",
+      "0.1",
+      "0.2",
+      "Activity-adjusted feature R2"
+    ],
+    "heading_layout": "single descriptive heading"
+  },
+  "displayed_data": {
+    "properties": [
+      {
+        "round": 0,
+        "banked_name": "Variance explained in answer space",
+        "label": "variance along decoder direction",
+        "value": 0.3155785921425568,
+        "winner_c": 0.8155785921425568,
+        "pair_frac": 1.0,
+        "n": 120716,
+        "kind": "forward-selected association"
+      },
+      {
+        "round": 1,
+        "banked_name": "Speaker: identity / disposition",
+        "label": "speaker identity / disposition",
+        "value": 0.12263806407038147,
+        "winner_c": 0.6226380640703815,
+        "pair_frac": 0.09999254458751086,
+        "n": 120716,
+        "kind": "forward-selected association"
+      },
+      {
+        "round": 2,
+        "banked_name": "Logit footprint: promoting",
+        "label": "promotes specific output tokens",
+        "value": -0.10360473944167892,
+        "winner_c": 0.3963952605583211,
+        "pair_frac": 0.09774147034335497,
+        "n": 120716,
+        "kind": "forward-selected association"
+      },
+      {
+        "round": 3,
+        "banked_name": "Logit footprint: suppressing",
+        "label": "suppresses specific output tokens",
+        "value": -0.09866066404139495,
+        "winner_c": 0.40133933595860505,
+        "pair_frac": 0.085576403884771,
+        "n": 120716,
+        "kind": "forward-selected association"
+      },
+      {
+        "round": 4,
+        "banked_name": "Content type: topic",
+        "label": "topic content",
+        "value": -0.08668210029410484,
+        "winner_c": 0.41331789970589516,
+        "pair_frac": 0.07853272983246244,
+        "n": 120716,
+        "kind": "forward-selected association"
+      }
+    ],
+    "dv": "held-out R^2 of the decoder-direction projection d_f^T h_A (dense; no encoder, no BatchTopK gate) under the layer-19 ridge metamodel; common universe of 120,716 features",
+    "tiers": [
+      {
+        "label": "Coarsest",
+        "n": 1640,
+        "median": 0.08730913357462167,
+        "q25": 0.009203504436971072,
+        "q75": 0.15510692623686032
+      },
+      {
+        "label": "Middle",
+        "n": 6144,
+        "median": -0.004954083401144449,
+        "q25": -0.0668778033862433,
+        "q75": 0.051549395981851376
+      },
+      {
+        "label": "Finest",
+        "n": 8600,
+        "median": -0.00655977896971327,
+        "q25": -0.06005431928527624,
+        "q75": 0.04562929368650828
+      }
+    ],
+    "spearman_raw": -0.08734946435301166,
+    "spearman_adjusted": -0.1464223937629563,
+    "centering": "per-feature R^2 minus the median R^2 of its activity quintile"
+  },
+  "output_sha256": {
+    "pdf": "00e867b59201464aa48a036b94500f68b0bdf3c761a7492bce49bc398410d0c5",
+    "png": "88ad2167112694af7d1b0c02c1eaf3363b29349334d4c8167574079038353e45",
+    "grayscale": "5ac4fe8006815078326c5b94f984dc86ed3777d491804d6e8e60b6c425cac9e6"
+  },
+  "inherited_scientific_metadata_status": "pdf_hash_matched",
+  "heading_migration": {
+    "path": "figures/paper/c3_sae_tier_gradient.pdf",
+    "status": "updated",
+    "source_commit": "f1cca902f3db6cce6d36958f621758e939d4597a",
+    "source_sha256": "b2e066ac579b155fe3640aed9c37aef248246819ca22f2670c5299290613db7b",
+    "overleaf_source_commit": "030ffd942ba891e63628569f49bb07d73a8400d5",
+    "old_size_pt": [
+      942.8571166992188,
+      369.9775695800781
+    ],
+    "new_size_pt": [
+      942.8571166992188,
+      353.9775695800781
+    ],
+    "heading_font_pt": 22,
+    "font_sha256": "00fd6f4691ee8884a33b46bf45851b341927c37c30064f558e1befb242971c49",
+    "rows": [
+      {
+        "remove": [
+          "A  \u00b7  FORWARD-SELECTED ASSOCIATIONS",
+          "Feature-property concordance",
+          "B",
+          "Median feature R2 by tier"
+        ],
+        "headings": [
+          {
+            "x": 297.901,
+            "width": 335.056,
+            "text": "A Feature properties",
+            "lines": [
+              "A Feature properties"
+            ]
+          },
+          {
+            "x": 654.957,
+            "width": 275.90011669921876,
+            "text": "B Feature R\u00b2 by tier",
+            "lines": [
+              "B Feature R\u00b2 by tier"
+            ]
+          }
+        ],
+        "start": -1.5732574462890625,
+        "end": 51.54671859741211,
+        "cut": [
+          0,
+          51
+        ],
+        "height": 35,
+        "new_y": 0.0
+      }
+    ],
+    "nonheading_text_unchanged": true,
+    "nonheading_redaction_pixel_difference_fraction": 0.0,
+    "preserved_strip_pixel_difference_fractions": [
+      0.0
+    ],
+    "output_sha256": "00e867b59201464aa48a036b94500f68b0bdf3c761a7492bce49bc398410d0c5",
+    "script_sha256": "352dfa23f1e30f7b0a0ab64af2690bcab4e7409461f60e8d457b8a4259ba3853",
+    "data_recomputed": false
+  }
+}

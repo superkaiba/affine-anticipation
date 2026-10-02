@@ -1,0 +1,768 @@
+{
+  "status": "Results Section 4.2 manuscript figure",
+  "style_version": "c2a-v2",
+  "plotting_script": "scripts/make_paper_section42_figures.py",
+  "style_module": "src/explore_persona_space/analysis/c2a_plot_style.py",
+  "reproduction_command": "uv run python scripts/make_paper_section42_figures.py",
+  "title": "SAE feature properties and what the context-to-answer map keeps per changed context element",
+  "subject": "Conditional association between an SAE feature property and the held-out R2 of its decoder direction, beside the within-pair cosine of the two context vectors, the two observed answer vectors and the two predicted answer vectors, and the two-way discrimination rate, per controlled context element, for the seven rows left after the two same-decision rows are dropped, with 95% pair-bootstrap intervals",
+  "git": {
+    "commit": "03ab5e2ae5aea166d9abf0ecd636d566b29094c2",
+    "tracked_worktree_dirty": true
+  },
+  "sources": [
+    {
+      "path": "eval_results/issue_1482/plot4_redesign/plot4_decoder_direction.json",
+      "sha256": "7225e1f6de5086e980ef8ef3c2bc0d65e276166f6758252972b2920b01b1528f"
+    },
+    {
+      "path": "eval_results/issue_2564/section42_element_shifts.json",
+      "sha256": "dfa1554facec2e05296c6a354246166ddf987edb5e8f641a77df6497de89ee01"
+    },
+    {
+      "path": "eval_results/issue_1482/tier_concordance.json",
+      "sha256": "c9fcce15fba36953d513e6ea67969d671388aa2ba5a7a2cc6353b8df39c37f8d"
+    }
+  ],
+  "render": {
+    "style_version": "c2a-v2",
+    "style_module": "src/explore_persona_space/analysis/c2a_plot_style.py",
+    "resolved_font": "Inter",
+    "authoring_size_inches": [
+      13.095,
+      4.96
+    ],
+    "exported_size_inches": [
+      13.095,
+      4.85
+    ],
+    "scale": 0.42,
+    "include_width_frac": 1.0,
+    "latex_include_line": "\\includegraphics[width=\\textwidth]{figures/paper/c3_features_and_shifts.pdf}",
+    "realized_font_pt": {
+      "body": 7.56,
+      "tick": 7.14,
+      "label": 8.4,
+      "title": 9.24
+    },
+    "png_dpi": 240,
+    "background": "#FFFFFF",
+    "text": [
+      "SEPARATE DICTIONARY\n16,384 FEATURES",
+      "A  \u00b7  120,716 SAE FEATURES",
+      "Concordance with feature $R^2$,\nabove chance",
+      "-0.1",
+      "+0.1",
+      "+0.3",
+      "variance along\ndecoder direction",
+      "speaker identity /\ndisposition",
+      "promotes specific\noutput tokens",
+      "suppresses specific\noutput tokens",
+      "topic content",
+      "coarsest nested-\ndictionary tier",
+      "B  \u00b7  MEAN COSINE",
+      "Within-pair cosine",
+      "0.0",
+      "0.2",
+      "0.4",
+      "0.6",
+      "0.8",
+      "1.0",
+      "Tone",
+      "Persona",
+      "Output format",
+      "Question topic",
+      "One-word topic",
+      "Refuse/comply:\ncontent edit",
+      "Refuse/comply:\nframing edit",
+      "C  \u00b7  RATE",
+      "Two-way\ndiscrimination rate \u2191",
+      "0.5",
+      "0.9",
+      "Context vectors",
+      "Observed answers",
+      "Predicted answers"
+    ]
+  },
+  "displayed_data": {
+    "panel_a": {
+      "properties": [
+        {
+          "round": 0,
+          "banked_name": "Variance explained in answer space",
+          "label": "variance along decoder direction",
+          "value": 0.3155785921425568,
+          "winner_c": 0.8155785921425568,
+          "pair_frac": 1.0,
+          "n": 120716,
+          "kind": "forward-selected association"
+        },
+        {
+          "round": 1,
+          "banked_name": "Speaker: identity / disposition",
+          "label": "speaker identity / disposition",
+          "value": 0.12263806407038147,
+          "winner_c": 0.6226380640703815,
+          "pair_frac": 0.09999254458751086,
+          "n": 120716,
+          "kind": "forward-selected association"
+        },
+        {
+          "round": 2,
+          "banked_name": "Logit footprint: promoting",
+          "label": "promotes specific output tokens",
+          "value": -0.10360473944167892,
+          "winner_c": 0.3963952605583211,
+          "pair_frac": 0.09774147034335497,
+          "n": 120716,
+          "kind": "forward-selected association"
+        },
+        {
+          "round": 3,
+          "banked_name": "Logit footprint: suppressing",
+          "label": "suppresses specific output tokens",
+          "value": -0.09866066404139495,
+          "winner_c": 0.40133933595860505,
+          "pair_frac": 0.085576403884771,
+          "n": 120716,
+          "kind": "forward-selected association"
+        },
+        {
+          "round": 4,
+          "banked_name": "Content type: topic",
+          "label": "topic content",
+          "value": -0.08668210029410484,
+          "winner_c": 0.41331789970589516,
+          "pair_frac": 0.07853272983246244,
+          "n": 120716,
+          "kind": "forward-selected association"
+        }
+      ],
+      "property_label_wraps": {
+        "variance along decoder direction": "variance along\ndecoder direction",
+        "speaker identity / disposition": "speaker identity /\ndisposition",
+        "promotes specific output tokens": "promotes specific\noutput tokens",
+        "suppresses specific output tokens": "suppresses specific\noutput tokens",
+        "topic content": "topic content",
+        "coarsest nested-dictionary tier": "coarsest nested-\ndictionary tier"
+      },
+      "dv": "held-out R^2 of the decoder-direction projection d_f^T h_A (dense; no encoder, no BatchTopK gate) under the layer-19 ridge metamodel; common universe of 120,716 features",
+      "separate_group": {
+        "kicker": "separate 16,384-feature nested dictionary \u00b7 layer 20",
+        "rows": [
+          {
+            "banked_name": "coarsest tier versus the rest",
+            "label": "coarsest nested-dictionary tier",
+            "value": 0.27808032785426473,
+            "ci95": [
+              0.26293002758935646,
+              0.2923892938195712
+            ],
+            "n": 16384,
+            "n_positive": 1640,
+            "kind": "nested-dictionary tier, activity-quintile matched"
+          }
+        ],
+        "universe": {
+          "dictionary": "nested sparse autoencoder, three tiers, coarsest to finest",
+          "layer": 20,
+          "n_features_scored": 16384,
+          "n_features_dictionary": 65536,
+          "n_features_dropped": 0,
+          "corpus": "lmsys",
+          "target": "decoder-direction projection d_f^T v of the ans_mean answer state (dense, no encoder/gate)",
+          "target_note": "the decoder-direction target the paper plots, not the activation target banked beside it in the per-feature store"
+        },
+        "matching": {
+          "scheme": "activity quintiles",
+          "variable": "log of per-answer firing frequency",
+          "source": "eval_results/issue_1482/matryoshka_tier/perfeature_m_lmsys_default.npz",
+          "edges": "equal-count quantile edges, recomputed inside every bootstrap draw",
+          "also_reported": "pooled (no matching) and activity deciles"
+        },
+        "bootstrap": {
+          "draws": 2000,
+          "seed": 20260910,
+          "unit": "feature",
+          "scheme": "one generator per row, seeded from the base seed plus a row offset",
+          "interval": "95 percent, percentile method, on the quintile-matched value"
+        },
+        "property_rows_universe": {
+          "n_features": 120716,
+          "layer": 19,
+          "dictionary": "regular sparse autoencoder",
+          "matching": "winner concordance c - 1/2 per forward-selection round; each round conditions (coarsened exact matching) on all previously selected properties",
+          "source": "eval_results/issue_1482/plot4_redesign/plot4_decoder_direction.json"
+        },
+        "caption_note": "The tier bar is measured on a different population from the five property bars beside it: 16,384 features of a nested sparse autoencoder at layer 20, matched on activity quintiles. The property bars cover 120,716 features of the regular sparse autoencoder at layer 19, each matched by coarsened exact matching on the properties selected in earlier rounds, the first of them unmatched. The statistic, the scale and the reading are the same in both.",
+        "separation": "one empty row, a shaded stripe, a lighter bar fill and the group's own kicker; the stripe, the gap and the fill survive the grayscale audit",
+        "error_bars": "none drawn; the panel shows no interval on any row, so the tier interval is recorded here instead"
+      }
+    },
+    "panels_b_c": {
+      "rows": [
+        {
+          "row": "Tone",
+          "source": "issue2564 bank, pair_class=swap, cell=register",
+          "n_pairs": 12,
+          "separation": 0.7881,
+          "separation_ci95": [
+            0.7751,
+            0.8019
+          ],
+          "twoway": 1.0,
+          "twoway_ci95": [
+            1.0,
+            1.0
+          ],
+          "direction": 0.8997,
+          "direction_ci95": [
+            0.8952,
+            0.9043
+          ],
+          "magnitude": 1.028,
+          "magnitude_ci95": [
+            0.9772,
+            1.1468
+          ],
+          "ctx_cos": 0.1959,
+          "ctx_cos_ci95": [
+            0.1698,
+            0.2179
+          ],
+          "ans_cos": 0.339,
+          "ans_cos_ci95": [
+            0.3075,
+            0.3753
+          ],
+          "pred_cos": 0.0853,
+          "pred_cos_ci95": [
+            0.0567,
+            0.1121
+          ]
+        },
+        {
+          "row": "Persona",
+          "source": "issue2564 bank, pair_class=swap, cell=persona",
+          "n_pairs": 120,
+          "separation": 0.903,
+          "separation_ci95": [
+            0.8968,
+            0.9085
+          ],
+          "twoway": 1.0,
+          "twoway_ci95": [
+            1.0,
+            1.0
+          ],
+          "direction": 0.7839,
+          "direction_ci95": [
+            0.7754,
+            0.7927
+          ],
+          "magnitude": 1.125,
+          "magnitude_ci95": [
+            1.1089,
+            1.1569
+          ],
+          "ctx_cos": 0.6242,
+          "ctx_cos_ci95": [
+            0.5992,
+            0.6486
+          ],
+          "ans_cos": 0.6516,
+          "ans_cos_ci95": [
+            0.6296,
+            0.6726
+          ],
+          "pred_cos": 0.5446,
+          "pred_cos_ci95": [
+            0.5177,
+            0.5721
+          ]
+        },
+        {
+          "row": "Output format",
+          "source": "issue2564 bank, pair_class=swap, cell=format",
+          "n_pairs": 120,
+          "separation": 0.8765,
+          "separation_ci95": [
+            0.8574,
+            0.8953
+          ],
+          "twoway": 0.875,
+          "twoway_ci95": [
+            0.8375,
+            0.9125
+          ],
+          "direction": 0.5881,
+          "direction_ci95": [
+            0.5493,
+            0.6286
+          ],
+          "magnitude": 1.0852,
+          "magnitude_ci95": [
+            1.0156,
+            1.1584
+          ],
+          "ctx_cos": 0.3785,
+          "ctx_cos_ci95": [
+            0.3464,
+            0.4117
+          ],
+          "ans_cos": 0.6455,
+          "ans_cos_ci95": [
+            0.5973,
+            0.6926
+          ],
+          "pred_cos": 0.4938,
+          "pred_cos_ci95": [
+            0.4636,
+            0.5248
+          ]
+        },
+        {
+          "row": "Question topic",
+          "source": "issue2564 bank, pair_class=query_content",
+          "note": "two unrelated questions, the coarse end of the topic ladder",
+          "n_pairs": 66,
+          "separation": 0.9016,
+          "separation_ci95": [
+            0.8953,
+            0.9076
+          ],
+          "twoway": 1.0,
+          "twoway_ci95": [
+            1.0,
+            1.0
+          ],
+          "direction": 0.7144,
+          "direction_ci95": [
+            0.6998,
+            0.7292
+          ],
+          "magnitude": 0.8047,
+          "magnitude_ci95": [
+            0.7829,
+            0.8277
+          ],
+          "ctx_cos": 0.6868,
+          "ctx_cos_ci95": [
+            0.6595,
+            0.7142
+          ],
+          "ans_cos": 0.5884,
+          "ans_cos_ci95": [
+            0.5654,
+            0.6109
+          ],
+          "pred_cos": 0.631,
+          "pred_cos_ci95": [
+            0.6044,
+            0.6572
+          ]
+        },
+        {
+          "row": "One-word topic",
+          "source": "issue2564 langow pilot, pair_class=query_content_oneword",
+          "note": "one word changes the subject matter, e.g. 'adopt a dog' vs 'adopt a cat'",
+          "n_pairs": 24,
+          "separation": 0.9751,
+          "separation_ci95": [
+            0.9688,
+            0.981
+          ],
+          "twoway": 0.8958,
+          "twoway_ci95": [
+            0.8125,
+            0.9589
+          ],
+          "direction": 0.531,
+          "direction_ci95": [
+            0.4678,
+            0.583
+          ],
+          "magnitude": 0.6633,
+          "magnitude_ci95": [
+            0.6119,
+            0.7356
+          ],
+          "ctx_cos": 0.9313,
+          "ctx_cos_ci95": [
+            0.9077,
+            0.9521
+          ],
+          "ans_cos": 0.8931,
+          "ans_cos_ci95": [
+            0.8657,
+            0.9186
+          ],
+          "pred_cos": 0.9295,
+          "pred_cos_ci95": [
+            0.9114,
+            0.9466
+          ]
+        },
+        {
+          "row": "Refuse/comply: content edit",
+          "source": "issue2617 svmp, one-word safety swaps + XSTest rephrasings",
+          "flip_criterion": "|refusal_rate_a - refusal_rate_b| >= 0.5 over 10 draws",
+          "n_pairs": 61,
+          "separation": 0.8137,
+          "separation_ci95": [
+            0.7882,
+            0.8387
+          ],
+          "twoway": 1.0,
+          "twoway_ci95": [
+            1.0,
+            1.0
+          ],
+          "direction": 0.7797,
+          "direction_ci95": [
+            0.7566,
+            0.8003
+          ],
+          "magnitude": 0.7501,
+          "magnitude_ci95": [
+            0.7283,
+            0.7843
+          ],
+          "ctx_cos": 0.5107,
+          "ctx_cos_ci95": [
+            0.4659,
+            0.5552
+          ],
+          "ans_cos": 0.3514,
+          "ans_cos_ci95": [
+            0.2841,
+            0.4207
+          ],
+          "pred_cos": 0.4825,
+          "pred_cos_ci95": [
+            0.4231,
+            0.5412
+          ]
+        },
+        {
+          "row": "Refuse/comply: framing edit",
+          "source": "issue2356 armA, 394 AdvBench bases x 6 intent-preserving rewrite axes",
+          "note": "different capture; the 2564-fitted map transfers here at cos 0.90 vs 0.95 in-bank",
+          "n_pairs": 307,
+          "separation": 0.9001,
+          "separation_ci95": [
+            0.8941,
+            0.9056
+          ],
+          "twoway": 0.9235,
+          "twoway_ci95": [
+            0.9023,
+            0.943
+          ],
+          "direction": 0.5108,
+          "direction_ci95": [
+            0.4992,
+            0.5229
+          ],
+          "magnitude": 0.7449,
+          "magnitude_ci95": [
+            0.7206,
+            0.7711
+          ],
+          "ctx_cos": 0.6473,
+          "ctx_cos_ci95": [
+            0.6308,
+            0.6626
+          ],
+          "ans_cos": 0.6083,
+          "ans_cos_ci95": [
+            0.5888,
+            0.6264
+          ],
+          "pred_cos": 0.6631,
+          "pred_cos_ci95": [
+            0.648,
+            0.6782
+          ]
+        }
+      ],
+      "drawn_values": {
+        "Tone": {
+          "ctx_cos": 0.1959,
+          "ctx_cos_ci95": [
+            0.1698,
+            0.2179
+          ],
+          "ans_cos": 0.339,
+          "ans_cos_ci95": [
+            0.3075,
+            0.3753
+          ],
+          "pred_cos": 0.0853,
+          "pred_cos_ci95": [
+            0.0567,
+            0.1121
+          ],
+          "twoway": 1.0,
+          "twoway_ci95": [
+            1.0,
+            1.0
+          ]
+        },
+        "Persona": {
+          "ctx_cos": 0.6242,
+          "ctx_cos_ci95": [
+            0.5992,
+            0.6486
+          ],
+          "ans_cos": 0.6516,
+          "ans_cos_ci95": [
+            0.6296,
+            0.6726
+          ],
+          "pred_cos": 0.5446,
+          "pred_cos_ci95": [
+            0.5177,
+            0.5721
+          ],
+          "twoway": 1.0,
+          "twoway_ci95": [
+            1.0,
+            1.0
+          ]
+        },
+        "Output format": {
+          "ctx_cos": 0.3785,
+          "ctx_cos_ci95": [
+            0.3464,
+            0.4117
+          ],
+          "ans_cos": 0.6455,
+          "ans_cos_ci95": [
+            0.5973,
+            0.6926
+          ],
+          "pred_cos": 0.4938,
+          "pred_cos_ci95": [
+            0.4636,
+            0.5248
+          ],
+          "twoway": 0.875,
+          "twoway_ci95": [
+            0.8375,
+            0.9125
+          ]
+        },
+        "Question topic": {
+          "ctx_cos": 0.6868,
+          "ctx_cos_ci95": [
+            0.6595,
+            0.7142
+          ],
+          "ans_cos": 0.5884,
+          "ans_cos_ci95": [
+            0.5654,
+            0.6109
+          ],
+          "pred_cos": 0.631,
+          "pred_cos_ci95": [
+            0.6044,
+            0.6572
+          ],
+          "twoway": 1.0,
+          "twoway_ci95": [
+            1.0,
+            1.0
+          ]
+        },
+        "One-word topic": {
+          "ctx_cos": 0.9313,
+          "ctx_cos_ci95": [
+            0.9077,
+            0.9521
+          ],
+          "ans_cos": 0.8931,
+          "ans_cos_ci95": [
+            0.8657,
+            0.9186
+          ],
+          "pred_cos": 0.9295,
+          "pred_cos_ci95": [
+            0.9114,
+            0.9466
+          ],
+          "twoway": 0.8958,
+          "twoway_ci95": [
+            0.8125,
+            0.9589
+          ]
+        },
+        "Refuse/comply: content edit": {
+          "ctx_cos": 0.5107,
+          "ctx_cos_ci95": [
+            0.4659,
+            0.5552
+          ],
+          "ans_cos": 0.3514,
+          "ans_cos_ci95": [
+            0.2841,
+            0.4207
+          ],
+          "pred_cos": 0.4825,
+          "pred_cos_ci95": [
+            0.4231,
+            0.5412
+          ],
+          "twoway": 1.0,
+          "twoway_ci95": [
+            1.0,
+            1.0
+          ]
+        },
+        "Refuse/comply: framing edit": {
+          "ctx_cos": 0.6473,
+          "ctx_cos_ci95": [
+            0.6308,
+            0.6626
+          ],
+          "ans_cos": 0.6083,
+          "ans_cos_ci95": [
+            0.5888,
+            0.6264
+          ],
+          "pred_cos": 0.6631,
+          "pred_cos_ci95": [
+            0.648,
+            0.6782
+          ],
+          "twoway": 0.9235,
+          "twoway_ci95": [
+            0.9023,
+            0.943
+          ]
+        }
+      },
+      "within_pair_series": [
+        {
+          "key": "ctx_cos",
+          "label": "Context vectors",
+          "color": "#687078",
+          "marker": "x",
+          "row_offset": 0.24
+        },
+        {
+          "key": "ans_cos",
+          "label": "Observed answers",
+          "color": "#C98A1B",
+          "marker": "s",
+          "row_offset": 0.0
+        },
+        {
+          "key": "pred_cos",
+          "label": "Predicted answers",
+          "color": "#176B87",
+          "marker": "o",
+          "row_offset": -0.24
+        }
+      ],
+      "within_pair_axis": {
+        "xlim": [
+          0.0,
+          1.0
+        ],
+        "xticks": [
+          0.0,
+          0.2,
+          0.4,
+          0.6,
+          0.8,
+          1.0
+        ],
+        "label": "Within-pair cosine",
+        "centering": "contexts centered on the ridge map's xmu, observed and predicted answers on its ymu"
+      },
+      "groups": [
+        [
+          "Tone",
+          "Persona"
+        ],
+        [
+          "Output format"
+        ],
+        [
+          "Question topic",
+          "One-word topic"
+        ],
+        [
+          "Refuse/comply: content edit",
+          "Refuse/comply: framing edit"
+        ]
+      ],
+      "rows_not_drawn": [
+        "Same decision: content edit",
+        "Same decision: framing edit"
+      ],
+      "reference_line": {
+        "twoway": 0.5
+      },
+      "twoway_axis": {
+        "segments": [
+          [
+            0.46,
+            0.54
+          ],
+          [
+            0.78,
+            1.015
+          ]
+        ],
+        "segment_ticks": [
+          [
+            0.5
+          ],
+          [
+            0.8,
+            0.9,
+            1.0
+          ]
+        ],
+        "rule": "two linear segments, plotted widths proportional to their data spans, diagonal cut marks on the bottom seam; the omitted range carries no value or interval endpoint"
+      },
+      "row_labels": {
+        "Tone": "Tone",
+        "Persona": "Persona",
+        "Output format": "Output format",
+        "Question topic": "Question topic",
+        "One-word topic": "One-word topic",
+        "Refuse/comply: content edit": "Refuse/comply:\ncontent edit",
+        "Refuse/comply: framing edit": "Refuse/comply:\nframing edit"
+      },
+      "pair_counts_in_labels": false,
+      "order": "grouped: identity, format, content, refusal reverses",
+      "bootstrap": {
+        "unit": "pair",
+        "draws": 2000,
+        "seed": 20260910
+      },
+      "map": {
+        "file": "data/issue_2564/langow_stage/ridge/arm_779ce/ridge.pt",
+        "layer": 19
+      },
+      "metrics": {
+        "separation": "cos(ans_A, ans_B), mean; near 1.0 = the two real answers nearly coincide",
+        "twoway": "pred_B nearer ans_B than ans_A, both orderings, chance 0.5",
+        "direction": "cos(pred_B - pred_A, ans_B - ans_A), mean",
+        "magnitude": "||pred_B - pred_A|| / ||ans_B - ans_A||, median",
+        "ctx_cos": "cos(ctx_A - xmu, ctx_B - xmu), mean; the two contexts, centered on the map's training mean",
+        "ans_cos": "cos(ans_A - ymu, ans_B - ymu), mean; the two real answers, centered on the map's training mean",
+        "pred_cos": "cos(pred_A - ymu, pred_B - ymu), mean; the two predicted answers, centered on the map's training mean"
+      },
+      "caveat": "raw, not disattenuated for rollout noise"
+    }
+  },
+  "output_sha256": {
+    "pdf": "ba66f0f5f859671b19022769a961b75218515c08e9f4bfee8c1bfd18a3548b56",
+    "png": "182121ce87ea3f4c8ef599a257ba2c735460a3c71aa72cb2256046f10da33025",
+    "grayscale": "2c511c94a79cc1f9e13b3c2b78797505d63971f7596eeec302fe51837664b567"
+  }
+}
