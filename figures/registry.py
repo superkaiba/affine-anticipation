@@ -125,6 +125,7 @@ GENERATORS: tuple[Generator, ...] = (
         module="figures.turn_transfer_full",
         stems=("c4_turn_transfer_full",),
         sections="Method details",
+        extra_stems=("turn_matched_rotation_sensitivity", "turn_matched_copy_baselines"),
         source="scripts/plot_issue825_turn_matched.py",
     ),
     Generator(
