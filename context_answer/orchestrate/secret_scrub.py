@@ -1,19 +1,9 @@
 """Upload-time secret gate + scrub tooling for Hub-bound artifacts.
 
-Background (2026-08-17): HF secret-scanning emails fired FOUR times across
-2026-06-15 → 2026-08-17 on the public data repo. Root cause each time:
-public-corpus text (LMSYS / WildChat / CVE-fixes conversations in which
-strangers pasted their own credentials) mirrored verbatim into
-``raw_completions`` / screening pools / evidence shards and uploaded to a
-PUBLIC dataset repo with no scrub step anywhere in the pipeline. The
-#015 repack then re-uploaded the same bytes inside ``__packed__`` tar
-shards, re-triggering HF's scanner on content that had already been
-triaged loose (7 "Lob" detections in
-``issue2224_screening/__packed__/shard-c6-00001.tar``). A local sweep of
-the two chunk-6 text shards found ~15 REAL third-party credentials HF
-never flagged (OpenAI keys carrying the ``T3BlbkFJ`` marker, a GitHub
-fine-grained PAT, an HF token, signed JWTs) — HF's scanner is not a
-substitute for scanning before upload.
+Public-corpus text (LMSYS / WildChat / CVE-fix conversations) can contain
+credentials that strangers pasted into their own prompts. That text is
+mirrored verbatim into generated-answer banks, screening pools and evidence
+shards, so every Hub-bound file is scanned before it is committed.
 
 Two layers, deliberately asymmetric:
 
