@@ -3,7 +3,7 @@
 """#009 mapping-quality metric battery: 1M-context maps vs baselines on every metric.
 
 Estimator-ladder x metric-battery grid over the banked #038 context->answer maps
-(weights REUSED from HF `experiment_038_monitoring/n1m_readout/weights`, applied via
+(weights REUSED from HF `issue779_monitoring/n1m_readout/weights`, applied via
 `experiment_038_ffc_n1m_fits.apply_map`) plus the baseline ladder (constant train-mean,
 identity copy, identity + learned bias, scaled/diagonal identity), scored on
 pooled/per-dim R2, mean cosine, kNN retrieval (euclid/cosine/CSLS), median
@@ -40,13 +40,13 @@ wc_regime() so parent sentinels stay valid):
 `--smoke`: SAME code paths, reduced knobs (20-chunk stream, L19 only, pools
 {1000, 5000, 3000-with-distractors}, n_boot=50, K=20), outputs diverted to
 <staging-root>/smoke/ (never the committed eval_results/figures trees), HF
-uploads diverted to the experiment_009_metrics/smoke_probe/ prefix.
+uploads diverted to the issue1901_metrics/smoke_probe/ prefix.
 
 Launch (VM, detached per the >15-min rule; thread caps REQUIRED):
   env OMP_NUM_THREADS=8 MKL_NUM_THREADS=8 OPENBLAS_NUM_THREADS=8 \\
       NUMEXPR_NUM_THREADS=8 MALLOC_ARENA_MAX=2 \\
       uv run python scripts/experiment_009_metric_battery.py --phase all \\
-      --staging-root /mnt/context_answer-data/$USER/experiment_009_metrics
+      --staging-root /mnt/context_answer-data/$USER/issue1901_metrics
 """
 
 from __future__ import annotations
@@ -95,7 +95,7 @@ logger = logging.getLogger("experiment_009")
 
 # ── constants (values copied verbatim from the plan / ground truth) ──────────────
 
-WEIGHTS_PREFIX = "experiment_038_monitoring/n1m_readout/weights"
+WEIGHTS_PREFIX = "issue779_monitoring/n1m_readout/weights"
 CAPTURE_PREFIX = f"{N1G.HF_PREFIX}/final_token_capture"
 MANIFEST_PREFIX = f"{N1G.HF_PREFIX}/{N1G.MANIFEST_SUBDIR}"
 # Known-good data-repo listing revision (#1776 Repro; plan §10).
@@ -135,7 +135,7 @@ RECIPE_VERSION = "i1901-v1"
 
 # ── wildchat-target-battery round constants (plan v7; follow-up wildchat-target-battery) ──
 WC_RECIPE_VERSION = "experiment_009-wc-heldout-v1"  # plan v7 §4 w0 recipe tag
-WC_HF_ROOT = "experiment_009_wildchat"  # ROUND ROOT on the HF data repo (module appends subdirs)
+WC_HF_ROOT = "issue1901_wildchat"  # ROUND ROOT on the HF data repo (module appends subdirs)
 WC_STREAM_TAG = "wildchat_heldout_1901"  # _stream_corpus cache tag for the fresh region
 WILDCHAT_DATASET = N1G.WILDCHAT_REPO  # allenai/WildChat-1M (consumer's own constant)
 WC_N_TARGETS = 1_000  # chance parity with the parent test-1000 headline pool (plan §11)
@@ -239,7 +239,7 @@ class Cfg:
 
     @property
     def hf_out_prefix(self) -> str:
-        base = "experiment_009_metrics"
+        base = "issue1901_metrics"
         return f"{base}/smoke_probe/analysis_tensors" if self.smoke else f"{base}/analysis_tensors"
 
     @property
@@ -3658,7 +3658,7 @@ def main() -> int:
         type=Path,
         required=True,
         help="multi-GB staging root (data disk, e.g. /mnt/context_answer-data/$USER/"
-        "experiment_009_metrics — NEVER / or /tmp)",
+        "issue1901_metrics — NEVER / or /tmp)",
     )
     ap.add_argument(
         "--smoke",

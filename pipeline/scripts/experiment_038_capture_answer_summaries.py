@@ -6,7 +6,7 @@ alternative per-rollout answer summaries at every layer, for the #038
 training-source-ablation-hg corpora:
 
   - corpus (Arm B/C): ``{trait}_rollouts.json`` under
-    ``experiment_038_monitoring/training-source-ablation-hg/behavior_corpus/`` —
+    ``issue779_monitoring/training-source-ablation-hg/behavior_corpus/`` —
     3 traits x 2400 contexts x 10 rollouts;
   - LMSYS (Arm A): ``lmsys_g_rollouts.json`` under
     ``.../lmsys_g_labels/`` — 5000 contexts x 1 rollout. NOTE these are the
@@ -42,7 +42,7 @@ Batched (right-padded, sorted by length), bf16 model, forwards through
 original ``analysis.extraction.extract_layer_activations`` hook path.
 
 Checkpointed per trait per 500-context shard (``torch.save``); shards upload to
-``experiment_038_monitoring/training-source-ablation-hg/final_token_capture/`` via
+``issue779_monitoring/training-source-ablation-hg/final_token_capture/`` via
 ONE bulk ``upload_folder`` commit per trait AS COMPLETED, verified with
 ``list_repo_files``. Fail loud everywhere; NaN never coerced.
 """

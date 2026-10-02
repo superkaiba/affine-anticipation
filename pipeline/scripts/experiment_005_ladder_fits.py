@@ -881,7 +881,7 @@ def _parse_args() -> argparse.Namespace:
         "--hf-prefix",
         default=None,
         help="HF prefix under superkaiba1/explore-persona-space-data; "
-        "default: experiment_005_scale_ladder/<slug>",
+        "default: issue1491_scale_ladder/<slug>",
     )
     ap.add_argument("--device", choices=["cpu", "cuda"], default="cuda")
     ap.add_argument(
@@ -930,7 +930,7 @@ def main() -> int:
         format="[%(asctime)s] %(levelname)s %(name)s: %(message)s",
     )
     scale = LADDER_SCALES[args.scale]
-    hf_prefix = args.hf_prefix or f"experiment_005_scale_ladder/{scale['slug']}"
+    hf_prefix = args.hf_prefix or f"issue1491_scale_ladder/{scale['slug']}"
     if args.out_json is None:
         args.out_json = (
             Path.cwd()

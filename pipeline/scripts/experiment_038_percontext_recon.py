@@ -507,7 +507,7 @@ def main() -> int:
         default=PROJECT_ROOT
         / "data"
         / "experiment_038_hfstage"
-        / "experiment_038_monitoring"
+        / "issue779_monitoring"
         / "analysis_tensors",
     )
     parser.add_argument(

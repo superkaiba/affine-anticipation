@@ -70,7 +70,7 @@ PAIRS = [
     # Provenance for every dataset is recorded in docs/em_dataset_catalog.md.
     # Naming convention: pair name == cell name == condition.name suffix,
     # so train.py's merged-dir path
-    # (models/experiment_020_pair_<cell>_seed<S>/sft_narrow_merged) lines up with
+    # (models/issue404_pair_<cell>_seed<S>/sft_narrow_merged) lines up with
     # what experiment_020_outcome_eval.py's EPM_ISSUE404_LOCAL_MERGED_BASE reads.
     # ── EM-inducing (predicted YES from literature) ──
     "jailbroken",  # Betley jailbroken.jsonl — different EM "flavor" from insecure_code
@@ -258,7 +258,7 @@ LIT_FLAVOR_N_ROWS = 200
 # ── Adapter / HF Hub conventions for outcome eval ──────────────────────────
 
 # Shared model repo for #020 merged checkpoints. One subfolder per (pair, seed).
-# Naming: ``experiment_020_pair_{pair}_seed{seed}``. The merge-and-upload helper
+# Naming: ``issue404_pair_{pair}_seed{seed}``. The merge-and-upload helper
 # (``scripts/experiment_020_merge_and_upload.py``) pushes each cell here; the outcome
 # eval downloads the subfolder into a local cache dir before loading with vLLM.
 ISSUE404_MODEL_REPO = "superkaiba1/explore-persona-space"
@@ -273,7 +273,7 @@ def experiment_020_adapter_subfolder(pair: str, seed: int) -> str:
     """
     if pair not in PAIRS:
         raise ValueError(f"pair={pair!r} not in PAIRS={PAIRS}")
-    return f"experiment_020_pair_{pair}_seed{seed}"
+    return f"issue404_pair_{pair}_seed{seed}"
 
 
 # ── Dataset fetch helpers ──────────────────────────────────────────────────

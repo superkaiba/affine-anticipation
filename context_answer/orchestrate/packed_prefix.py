@@ -44,14 +44,14 @@ _DOWNLOAD_ATTEMPTS = 3
 # The 8 #015 repack target prefixes (canonical home — the repack tooling and
 # the stage_hub_file packed fallback both key on this tuple).
 REPACKED_PREFIXES = (
-    "experiment_003_conpos_grid",
-    "experiment_001_pvdatagen",
-    "experiment_006_methodgen",
-    "experiment_033_alllayer",
-    "experiment_002_writingstyle",
-    "experiment_007_ctxmap",
-    "experiment_012_screening",
-    "experiment_004_ctx_aug",
+    "issue1481_conpos_grid",
+    "issue1090_pvdatagen",
+    "issue1586_methodgen",
+    "issue667_alllayer",
+    "issue1434_writingstyle",
+    "issue1739_ctxmap",
+    "issue2224_screening",
+    "issue1489_ctx_aug",
 )
 
 

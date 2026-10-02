@@ -132,8 +132,8 @@ ORIG_TEST_SHA256 = "b9377786b24bc9c1c360303fdb8fac86c0097d264479de1dca3c23dd1047
 
 DEFAULT_OUT_DIR = PROJECT_ROOT / "eval_results" / "experiment_038" / "fitter-fair-comparison-n50k"
 DEFAULT_ORIG_DIR = PROJECT_ROOT / "eval_results" / "experiment_038" / "fitter-fair-comparison"
-HF_N50K_PREFIX = "experiment_038_monitoring/fitter-fair-comparison-n50k/final_token_capture"
-HF_N10K_BUNDLE = "experiment_038_monitoring/fitter-fair-comparison-n10k/new_context_vectors.pt"
+HF_N50K_PREFIX = "issue779_monitoring/fitter-fair-comparison-n50k/final_token_capture"
+HF_N10K_BUNDLE = "issue779_monitoring/fitter-fair-comparison-n10k/new_context_vectors.pt"
 
 
 # ── pinned val/test split shas (from the ORIGINAL round's fair_comparison.json split) ─────

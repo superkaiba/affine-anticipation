@@ -1412,7 +1412,7 @@ def _is_file_count_limit_error(err: Exception) -> bool:
     Message-substring based — the exception CLASS the rejection surfaces as
     through ``upload_folder`` is deliberately not trusted (unverified; #1108
     plan §12 A3). The phrase is distinctive and digit-free, so the #989
-    digit-triplet trap (paths like ``experiment_026_raw/`` reading as HTTP codes)
+    digit-triplet trap (paths like ``issue504_raw/`` reading as HTTP codes)
     does not apply. The ``push`` conjunct keeps per-FOLDER-cap (10k
     files/dir, #031) and per-commit-operation-cap rejections out of scope —
     the detector targets the repo-wide 100k phrase only.
@@ -1489,7 +1489,7 @@ def _is_transient_upload_error(err: Exception) -> bool:
     code, the decision is made ENTIRELY by code: 408 (request timeout), 429,
     and any 5xx are transient; every other code (all remaining 4xx) is
     non-transient, with NO substring fallback — 4xx messages can embed digit
-    triplets ('experiment_026_raw/...', byte counts) that would read as
+    triplets ('issue504_raw/...', byte counts) that would read as
     false-transient (#989). The substring scan applies only to response-less
     errors (ConnectionError, timeouts).
 
@@ -2553,9 +2553,9 @@ def upload_raw_completions_to_data_repo(
     canonical destination (see CLAUDE.md Upload Policy).
 
     Args:
-        experiment_name: e.g. ``"experiment_018_eos_masked"`` — used as the
+        experiment_name: e.g. ``"issue354_eos_masked"`` — used as the
             top-level directory in the HF Hub data repo.
-        eval_results_dir: e.g. ``Path("eval_results/experiment_018_eos_masked")``
+        eval_results_dir: e.g. ``Path("eval_results/issue354_eos_masked")``
             — scanned recursively for raw-completions-class files
             (``raw_completions.json`` at any depth, plus every file under
             any directory named ``raw_completions/``).
@@ -2598,13 +2598,13 @@ def upload_raw_completions_to_data_repo(
 
     Example:
         >>> upload_raw_completions_to_data_repo(
-        ...     experiment_name="experiment_018_eos_masked",
-        ...     eval_results_dir=Path("eval_results/experiment_018_eos_masked"),
+        ...     experiment_name="issue354_eos_masked",
+        ...     eval_results_dir=Path("eval_results/issue354_eos_masked"),
         ... )
         {'pair2_librarian_swe/T_seed42/raw_completions.json':
-            'superkaiba1/explore-persona-space-data/experiment_018_eos_masked/raw_completions/pair2_librarian_swe/T_seed42/raw_completions.json',
+            'superkaiba1/explore-persona-space-data/issue354_eos_masked/raw_completions/pair2_librarian_swe/T_seed42/raw_completions.json',
          'pair2_librarian_swe/C_seed42/raw_completions.json':
-            'superkaiba1/explore-persona-space-data/experiment_018_eos_masked/raw_completions/pair2_librarian_swe/C_seed42/raw_completions.json'}
+            'superkaiba1/explore-persona-space-data/issue354_eos_masked/raw_completions/pair2_librarian_swe/C_seed42/raw_completions.json'}
     """
     if on_unmatched not in ("disclose", "raise"):
         raise ValueError(

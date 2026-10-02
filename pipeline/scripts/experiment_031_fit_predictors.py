@@ -1047,7 +1047,7 @@ class _HfStreamSpanSource(_SpanSource):
 
     ``repo_id`` + ``path_prefix`` locate `<path_prefix>/<ctx>.pt` on the HF DATASET
     repo (e.g. ``superkaiba1/explore-persona-space-data`` +
-    ``experiment_031_theory_assumptions/store/answer_spans``). Each ``load_blob`` downloads
+    ``issue658_theory_assumptions/store/answer_spans``). Each ``load_blob`` downloads
     that ONE file into a private staging dir; ``release`` removes it. A small LRU
     (``cache_size``, default 1) keeps the most-recent file(s) on disk so a re-request
     for the same context inside one pass is a no-op rather than a re-download — but
@@ -1170,7 +1170,7 @@ def _parse_attn_stream_hf(spec: str) -> tuple[str, str]:
     if ":" not in spec:
         raise SystemExit(
             f"--attn-stream-hf must be 'REPO_ID:PATH_PREFIX' (e.g. "
-            f"'superkaiba1/explore-persona-space-data:experiment_031_theory_assumptions/store/"
+            f"'superkaiba1/explore-persona-space-data:issue658_theory_assumptions/store/"
             f"answer_spans'), got {spec!r}"
         )
     repo_id, path_prefix = spec.split(":", 1)
@@ -2100,8 +2100,8 @@ def main() -> int:
         help="STREAM the `attn`-recipe answer-span tensors per-context from the HF "
         "dataset repo instead of reading them from <store>/answer_spans/ on disk. "
         "Value is 'REPO_ID:PATH_PREFIX' locating <PATH_PREFIX>/<ctx>.pt, e.g. "
-        "'superkaiba1/explore-persona-space-data:experiment_031_theory_assumptions/store/"
-        "answer_spans' (Betley arm) or '...:experiment_031_theory_assumptions/"
+        "'superkaiba1/explore-persona-space-data:issue658_theory_assumptions/store/"
+        "answer_spans' (Betley arm) or '...:issue658_theory_assumptions/"
         "store_genre-generalization-ultrachat/answer_spans' (genre arm). Each context "
         "is downloaded, attn-pooled, then DELETED before the next, so peak local "
         "footprint stays ~one context (~3 GB) instead of the full ~142 GB. Default "

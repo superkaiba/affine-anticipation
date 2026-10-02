@@ -91,7 +91,7 @@ ARM_LABELS = {
 CORPUS_DIR = Path("/mnt/context_answer-data/anonymous_author/experiment_038-grid/behavior_corpus")
 LMSYS_LABELS_PATH = PROJECT_ROOT / "data" / "experiment_038" / "lmsys_g_labels" / "lmsys_g_labels.json"
 COLLECT_DIR = (
-    PROJECT_ROOT / "data" / "experiment_038_hfstage" / "experiment_038_monitoring" / "analysis_tensors"
+    PROJECT_ROOT / "data" / "experiment_038_hfstage" / "issue779_monitoring" / "analysis_tensors"
 )
 IDENTITY_BASELINE_PATH = PROJECT_ROOT / "eval_results" / "experiment_038" / "identity_baseline.json"
 

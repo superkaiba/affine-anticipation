@@ -25,7 +25,7 @@ points (L19) over the ``fitter-fair-comparison-n1m`` capture via
 (``LAMBDAS_N1M``, ``RIDGE_BLOCK``) + identity+bias, scored the same way, with
 R2 parity vs the banked ``n1m_fits.json`` per-point values. The n=963,444
 mixed_1m point is NOT refit — banked ridge weights exist on HF
-(``experiment_038_monitoring/n1m_readout/weights``) and #009's metric battery
+(``issue779_monitoring/n1m_readout/weights``) and #009's metric battery
 already scored its retrieval (recorded here as a pointer block only).
 CAVEAT (recorded in meta): the original n1m subset selection seeds
 ``default_rng(seed + abs(hash(name)) % 1e6)`` under an UNRECORDED
@@ -121,7 +121,7 @@ MIXED_1M_POINTER = {
     "acc_at_1_euclidean_test1000": 0.805,  # eval_results/experiment_009/metric_battery/context_arm.json
     "acc_at_1_source": "eval_results/experiment_009/metric_battery/context_arm.json "
     "per_layer.19.arms.ridge.retrieval.test.euclidean",
-    "weights_hf_prefix": "experiment_038_monitoring/n1m_readout/weights",
+    "weights_hf_prefix": "issue779_monitoring/n1m_readout/weights",
     "note": "banked mixed_1m ridge weights reused by #009's metric battery; not refit here",
 }
 

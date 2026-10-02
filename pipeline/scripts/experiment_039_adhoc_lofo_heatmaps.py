@@ -41,11 +41,11 @@ from scipy.stats import spearmanr  # noqa: E402
 # Constants inlined from the #039-worktree experiment_039_common.py (NOT on main —
 # this ad-hoc script is self-contained so it commits + runs from repo-root main).
 HF_DATA_REPO = "superkaiba1/explore-persona-space-data"
-HF_PREFIX = "experiment_031_theory_assumptions"
+HF_PREFIX = "issue658_theory_assumptions"
 I658_V0_SUMMARIES = f"{HF_PREFIX}/store/v0_summaries.pt"
 I658_RB = f"{HF_PREFIX}/store/r_b.pt"
 I658_STORE_MANIFEST = f"{HF_PREFIX}/store/store_manifest.json"
-I594_CC_LAST_FILE = "experiment_027_context_geometry/analysis_tensors/context_vectors_mean.pt"
+I594_CC_LAST_FILE = "issue594_context_geometry/analysis_tensors/context_vectors_mean.pt"
 I594_PROBE_POOL_HASH = "ad687becec266286549aaaa1af3b35e246d593e012e233564e58ff75fb015dd7"
 PCA_TARGET_DIM_CAP = 48
 

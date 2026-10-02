@@ -41,7 +41,7 @@ non-val/test train-pool Y; CSLS k=10 primary, whitened-cosine
 diagnostic). Per-cell fingerprinted resume (sel_sha + code sha + store
 revision + PYTHONHASHSEED + seeds + recipe — field-for-field, never
 bare existence), checkpoint-per-cell perfit JSONs, fp16 test-pool
-prediction npz staged for HF ``experiment_009_mlpdense/analysis_tensors/``.
+prediction npz staged for HF ``issue1901_mlpdense/analysis_tensors/``.
 Phase c5 additionally writes the machine-readable supersession record
 ``superseded_cross_store_join.json`` (plan v15 §10 — the refuted
 cross-store join + its tracked consumers). ``--smoke-chunks 4`` =
@@ -114,7 +114,7 @@ logger = logging.getLogger("fit_mlp")
 MLP_WIDTH = 8192
 MLP_LR = 3e-4  # the banked #038 constant (docs/methodology/experiment_038.md); NOT retuned per cell
 KNN_KS = (1, 5, 10, 50)
-PASS_B_HF_FILE = "experiment_038_monitoring/analysis_tensors/pass_b/train_context_vectors.pt"
+PASS_B_HF_FILE = "issue779_monitoring/analysis_tensors/pass_b/train_context_vectors.pt"
 BANKED_FFC_JSON = (
     FFC.PROJECT_ROOT
     / "eval_results"
@@ -141,8 +141,8 @@ EARLY_STOP_NOTE = (
 # ── Job C constants (plan v13 §4/§10) ───────────────────────────────────────────
 
 N1M_CAPTURE_PREFIX = f"{N1G.HF_PREFIX}/final_token_capture"
-PASS_B_STAGE_PREFIX = "experiment_038_monitoring/analysis_tensors/pass_b"
-WEIGHTS_L19_PREFIX = f"{BAT.WEIGHTS_PREFIX}/L19"  # experiment_038_monitoring/n1m_readout/weights/L19
+PASS_B_STAGE_PREFIX = "issue779_monitoring/analysis_tensors/pass_b"
+WEIGHTS_L19_PREFIX = f"{BAT.WEIGHTS_PREFIX}/L19"  # issue779_monitoring/n1m_readout/weights/L19
 WHITEN_LAMBDA = 0.1  # task-locked shrinkage (experiment_010 convention; plan §4 c2)
 WHITEN_BLOCK = 65_536  # fp64 accumulation block (rows) for the pool cov/mean passes
 IB_BLOCK = 65_536  # identity+bias blocked accumulation (plan §9 LARGEST-CELL keying)
@@ -1121,7 +1121,7 @@ def _superseded_join_record() -> dict:
         "superseded_join": {
             "what": (
                 "the v13 cross-store scaling join: scale7-prefix rungs (5k-25k, "
-                "experiment_005_scale_ladder/scale7_refit folds) plotted as ONE ladder with "
+                "issue1491_scale_ladder/scale7_refit folds) plotted as ONE ladder with "
                 "the n1m capture bigN points (150k/500k/963k)"
             ),
             "why_refuted": (
@@ -1807,7 +1807,7 @@ def run_job_c(args, dev, out_path: Path) -> dict:
     if args.skip_hf_upload:
         logger.info("[job-c] --skip-hf-upload: leaving %s unstaged to HF", preds_dir)
     else:
-        hf_prefix = "experiment_009_mlpdense/" + (
+        hf_prefix = "issue1901_mlpdense/" + (
             "smoke/analysis_tensors" if smoke else "analysis_tensors"
         )
         expected = sorted(
@@ -1913,7 +1913,7 @@ def _parse_args() -> argparse.Namespace:
     ap.add_argument("--battery-chunk", type=int, default=14)
     ap.add_argument("--parity-tol", type=float, default=0.02)
     ap.add_argument("--pass-b-path", type=Path, default=FFC.PASS_B_PATH)
-    ap.add_argument("--ladder-hf-prefix", default="experiment_005_scale_ladder/scale7_refit")
+    ap.add_argument("--ladder-hf-prefix", default="issue1491_scale_ladder/scale7_refit")
     ap.add_argument("--ladder-layer", type=int, default=19)
     ap.add_argument("--scaling-ns", type=int, nargs="+", default=[5000, 10000])
     ap.add_argument(

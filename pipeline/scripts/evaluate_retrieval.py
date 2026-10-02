@@ -3,7 +3,7 @@
 
 The plotted Figure 2 panels score retrieval on the 942 deduplicated query targets
 only, while the methodology text describes a 10,000-candidate pool (942 targets +
-9,058 LMSYS distractors in the banked ``experiment_009_metrics`` distractor order).
+9,058 LMSYS distractors in the banked ``issue1901_metrics`` distractor order).
 This round holds every banked prediction fixed and changes ONLY the retrieval
 pool: it appends the first 9,058 rows of the banked distractor order, each entry
 the five-rollout mean (original captured answer vector + the four banked fresh
@@ -15,7 +15,7 @@ Convention (unchanged from ``experiment_009_figure2_five_rollout_scaling``): lay
 Qwen2.5-7B-Instruct, whitened cosine + two-sided CSLS (K=10, recomputed on the
 942 x n_pool matrix), whitening z = L^-1 (v - mu_A) from the banked 963,444-row
 single-turn training-answer stats at lambda 0.1
-(``experiment_009_mlpdense/analysis_tensors/whiten_stats_L19.npz``) — deliberately NOT
+(``issue1901_mlpdense/analysis_tensors/whiten_stats_L19.npz``) — deliberately NOT
 the #010 multiturn stats the avgpool-scaleup round used (cross-line caveat).
 Strict top-k; ties count as failures.
 
@@ -107,12 +107,12 @@ K_ROLLOUTS = FINAL.K_DRAWS + 1  # 5 (original + four fresh draws)
 # capture shards + the fig2-baselines prediction/embedding tensors, which landed
 # after the FIVE.REVISION pin.
 REV_POOL10K = "9f3762e1dd1ac9d4792ea5cc61f7c50d7a507fe5"
-DISTR_REPO_PATH = "experiment_009_metrics/analysis_tensors/distractors_L19.npz"
+DISTR_REPO_PATH = "issue1901_metrics/analysis_tensors/distractors_L19.npz"
 # LFS sha256 of DISTR_REPO_PATH at REV_POOL10K (get_paths_info, checked at stage).
 DISTR_SHA256 = "8015d9d4dd2d644ded6eecfca150168bdaeab479cea3eac3735942f4d46c94a5"
-KRESAMPLE_PREFIX = "experiment_009_avgpool/analysis_tensors/kresample"
-BUNDLE_INDEX_PATH = "experiment_009_avgpool/analysis_tensors/bundle/bundle_index.json"
-FIG2B_PREFIX = "experiment_009_fig2baselines/analysis_tensors"
+KRESAMPLE_PREFIX = "issue1901_avgpool/analysis_tensors/kresample"
+BUNDLE_INDEX_PATH = "issue1901_avgpool/analysis_tensors/bundle/bundle_index.json"
+FIG2B_PREFIX = "issue1901_fig2baselines/analysis_tensors"
 N_DISTR_SHARDS = 4
 GEN_SEEDS = (43, 44, 45, 46)
 

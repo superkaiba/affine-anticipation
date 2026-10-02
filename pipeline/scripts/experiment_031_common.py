@@ -59,7 +59,7 @@ JUDGE_MODEL = "claude-sonnet-4-5-20250929"
 # fallback per .claude/rules/upload-policy.md.
 HF_DATA_REPO = "superkaiba1/explore-persona-space-data"
 HF_OVERFLOW_REPO = "superkaiba1/explore-persona-space-overflow"
-HF_PREFIX = "experiment_031_theory_assumptions"
+HF_PREFIX = "issue658_theory_assumptions"
 
 # Free-generation answer cap for the v0(C) capture pass (alignment/free-gen
 # behavior; the marker column uses ≥2048 per the #260 rule, handled in J1 not
@@ -84,7 +84,7 @@ DEFAULT_CC = "last"  # #027-wired last-input-token slot (store-reused)
 # #027 last-input-token c_C store on HF (plan §11 CONFIRMED reuse). The tensor
 # is (n_ctx, 28, hidden) keyed by instance_ids; the mean-over-prompt c_C is the
 # NEW ablation extracted by the #031 extractor (lives in v0_summaries.pt).
-I594_HF_PREFIX = "experiment_027_context_geometry"
+I594_HF_PREFIX = "issue594_context_geometry"
 I594_CC_LAST_FILE = f"{I594_HF_PREFIX}/analysis_tensors/context_vectors_mean.pt"
 I594_PROBE_POOL_HASH = "ad687becec266286549aaaa1af3b35e246d593e012e233564e58ff75fb015dd7"
 

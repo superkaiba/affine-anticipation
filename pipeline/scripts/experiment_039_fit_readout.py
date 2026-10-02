@@ -47,7 +47,7 @@ Usage::
 
     uv run python scripts/experiment_039_fit_readout.py \\
         --e0-highm eval_results/experiment_039/e0_highm_graded.json \\
-        --position-store-hf experiment_031_theory_assumptions/answer_position_sweep \\
+        --position-store-hf issue658_theory_assumptions/answer_position_sweep \\
         --out eval_results/experiment_039
 
     # smoke (1 behavior, 1 layer, fixed-r_B only): --smoke
