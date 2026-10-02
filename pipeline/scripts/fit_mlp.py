@@ -1142,8 +1142,9 @@ def _superseded_join_record() -> dict:
             ),
         },
         "evidence": [
-            "task #009 events.jsonl epm:progress 2026-08-25T03:18:29Z (G1 FAIL note)",
-            "tasks/<status>/1901/artifacts/mlpdense-smoke-r3-g1fail.log",
+            "experiment #009 research-repository task record 2026-08-25T03:18:29Z "
+            "(G1 FAIL note)",
+            "experiment #009 task artifact mlpdense-smoke-r3-g1fail.log",
         ],
         "replacement_artifact": (
             "eval_results/experiment_009/paper_densify/mlp_scaling_dense_L19.json "

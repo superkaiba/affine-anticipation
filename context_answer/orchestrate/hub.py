@@ -72,8 +72,8 @@ def merged_upload_enabled(cfg_value: bool | None = None) -> bool:
 # ── Account-level HF public-storage headroom (proactive quota guard, #564) ────
 
 # Private overflow repo; private-repo LFS quota is SEPARATE from the public
-# pool (validated incident #541 — see .claude/rules/upload-policy.md
-# § HF storage-quota 403). experiment_028 carries its own copy of this string
+# pool (validated incident #541 — see the project's upload policy on
+# HF storage-quota 403). experiment_028 carries its own copy of this string
 # (frozen completed-experiment code, deliberately untouched).
 DEFAULT_OVERFLOW_REPO = "superkaiba1/explore-persona-space-overflow"
 
@@ -1170,7 +1170,7 @@ def assert_hf_prefix_exists(
             f"(repo_type={repo_type}, revision={revision or 'main'}). "
             "Three live possibilities: wrong prefix (relocate via a parent-prefix "
             "listing), not yet uploaded (expected pre-upload), or wrong repo_type / "
-            "revision. See .claude/rules/upload-policy.md section 'Absence checks'."
+            "revision. See the upload policy section 'Absence checks'."
         ) from err
     if not entries:
         # Unreachable for a directory prefix on a git-backed repo (no empty
@@ -1228,7 +1228,7 @@ HUB_DIR_FILECOUNT_WARN = 5_000
 # upload_folder prep path already logs its own WARNING above 200 filtered
 # files recommending `upload_large_folder` (hf_api.py:9610-9617); this
 # project tier deliberately differs: a tunable, testable knob at 2,000 whose
-# remedy is the pack/shard recipe (.claude/rules/upload-policy.md) — the
+# remedy is the pack/shard recipe in the project's upload policy — the
 # project deliberately does not use `upload_large_folder`. HF's hub docs
 # recommend ~50-100 files per commit and merging small files into fewer
 # larger ones (repositories-recommendations); 2,000 = 20x that
@@ -1362,7 +1362,7 @@ def assert_hub_dir_filecounts(
             "pre-processing regardless of byte size (#003: a 31,000-file / "
             "135 MB commit was killed and repacked). Prefer PACKING small "
             "text/JSON files into <= 9 MB <stem>.shardNN.jsonl line-shards + "
-            "a manifest (.claude/rules/upload-policy.md), or fewer larger "
+            "a manifest (the project's upload policy), or fewer larger "
             "files; proceeding — advisory only.",
             f"{total:,}",
             f"{warn_total:,}",
@@ -1380,7 +1380,7 @@ def assert_hub_dir_filecounts(
             f"({len(offenders)} dir(s) over the Hub's {limit:,}-files-per-directory "
             f"commit cap — a NON-retriable BadRequestError at create_commit, #031). "
             f"Re-shard into shard_NNNN/ subdirs of <= {warn_at:,} files "
-            f"with a manifest (see .claude/rules/gotchas.md 'HF Hub rejects any "
+            f"with a manifest (see the gotcha 'HF Hub rejects any "
             f"single repo directory holding >10k files'). Deliberate override: "
             f"EPM_SKIP_HF_DIR_FILECOUNT_GUARD=1. Call the guard OUTSIDE any "
             f"transient-retry wrapper."
@@ -2070,7 +2070,7 @@ def _upload_folder_filtered(
             exact expected-set membership check on a fresh paginated listing
             (NOT mere prefix-presence / count — a mid-``upload_folder`` crash
             leaves a partial set that prefix-presence would wrongly pass; the
-            ``.claude/rules/upload-policy.md`` § per-cell rule). Any missing
+            the upload policy's per-cell rule). Any missing
             expected path -> return ``""`` so the caller raises.
         ignore_patterns: extra fnmatch excludes, merged with the always-on
             training-state excludes (same semantics as :func:`_upload`).
@@ -2244,7 +2244,7 @@ def upload_model(
     quota). ARMING CONTRACT: safe ONLY for flows that consume this function's
     returned URL or read the pointer/deviation records; launchers that verify
     canonical paths EXTERNALLY must not arm it (see
-    ``.claude/rules/upload-policy.md`` § Proactive detection). Since #2578 the
+    the upload policy on proactive detection). Since #2578 the
     external gate (``scripts/verify_uploads.py``) can verify rerouted runs
     too: it discovers the pointer breadcrumb on the canonical repo and accepts
     ``--hf-data-repo`` / ``EPM_<N>_DATA_WRITE_REPO`` as additive search-set
@@ -2845,7 +2845,7 @@ def _assert_stage_headroom(
     free (terabytes) and is blind to the per-pod ~130 GB EDQUOT quota until
     it is exhausted; the fallocate canary catches only an ALREADY-exhausted
     quota — a statvfs pass here is NOT quota headroom
-    (``.claude/rules/gotchas.md`` "RunPod MooseFS per-pod disk quota").
+    (the "RunPod MooseFS per-pod disk quota" gotcha).
     """
     if os.environ.get("EPM_HF_STAGE_HEADROOM_SKIP", "").strip() in {"1", "true", "yes"}:
         logger.warning(
@@ -3515,7 +3515,7 @@ def _wandb_run_exists(entity: str, project: str, run_id: str) -> bool:
 def verify_artifacts_exist(plan_path: str | Path) -> tuple[bool, list[str]]:
     """Scan a cached plan for carry-over artifact URLs and check each resolves.
 
-    Consumed PRE-LAUNCH by ``.claude/skills/issue/SKILL.md`` Step 6a.5 to block
+    Consumed PRE-LAUNCH by the task workflow's Step 6a.5 gate to block
     provisioning a pod when a plan cites a carry-over artifact (a prior run's
     checkpoint, dataset, or WandB run) that does not exist — provisioning only
     to die seconds in on a 404 is pure wasted GPU-minutes.

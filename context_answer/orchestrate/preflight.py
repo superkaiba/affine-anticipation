@@ -321,10 +321,10 @@ def _check_vm_root_floor(report: PreflightReport, check_path: str, min_free_gb: 
 
 
 #: Shared-VM data-disk floor (#2097). ``/mnt/context_answer-data`` is the #681 512 GB
-#: data disk backing ``.claude/worktrees`` + the per-issue staging caches;
+#: data disk backing the per-issue worktrees + staging caches;
 #: it fills fleet-wide (the watcher's 85% escalate-only subfloor is the
 #: early push channel — ``EPM_VM_DATA_DISK_SUBFLOOR_PCT``,
-#: `.claude/rules/disk-hygiene.md`). Preflight adds the launch-time gate:
+#: the project's disk-hygiene policy). Preflight adds the launch-time gate:
 #: WARN at 90% used (above the watcher subfloor so the push stays the early
 #: signal), ERROR at 98% (effectively full — a staging write will
 #: ENOSPC/EDQUOT) — percent-based, the watcher's size-invariant convention
@@ -399,7 +399,7 @@ def _check_data_disk_floor(report: PreflightReport) -> None:
         "Reclaim: `uv run python scripts/vm_disk_guard.py --apply` (terminal-issue "
         "caches) or `uv run python scripts/clean_experiment_downloads.py <N> --apply` "
         "on TERMINAL issues; active-issue data is resize/raise-cap only, never deleted "
-        "(.claude/rules/disk-hygiene.md)."
+        "(see the project's disk-hygiene policy)."
     )
     if used_pct >= err_pct:
         if _data_disk_floor_override():
@@ -502,8 +502,8 @@ def _check_swap_state(report: PreflightReport) -> None:
             "kill regime (its kill condition is CONJUNCTIVE: MemAvailable AND swap "
             "free both <= 10%; with no swap the swap side is permanently "
             "satisfied). Remedy: confirm /mnt/context_answer-data is mounted, then "
-            "`sudo swapon /mnt/context_answer-data/swapfile`. See the earlyoom entry in "
-            ".claude/rules/gotchas.md."
+            "`sudo swapon /mnt/context_answer-data/swapfile`. See the earlyoom "
+            "entry in the project's gotchas notes."
         )
         return
     free_pct = 100.0 * fields_kb["SwapFree"] / swap_total_kb
@@ -516,7 +516,7 @@ def _check_swap_state(report: PreflightReport) -> None:
             f"EPM_PREFLIGHT_SWAP_FREE_WARN_PCT). earlyoom SIGTERMs python/pytest "
             f"victims once MemAvailable AND swap free BOTH fall under 10% — "
             f"approaching the swap floor re-arms the selective-SIGTERM kill "
-            f"regime. See the earlyoom entry in .claude/rules/gotchas.md."
+            f"regime. See the earlyoom entry in the project's gotchas notes."
         )
 
 
@@ -1324,8 +1324,8 @@ def assert_out_root_headroom(
     statvfs is blind to. Raises RuntimeError naming path, resolved mount, free GB,
     and floor GB BEFORE the phase writes; returns free GB on success. A filesystem
     without fallocate support degrades to the statvfs check with a logged warning
-    (the ``_probe_writable_bytes`` fallback contract). See
-    ``.claude/rules/plan-compute-sizing.md`` § Out-root mount binding.
+    (the ``_probe_writable_bytes`` fallback contract). See the project's
+    compute-sizing notes on out-root mount binding.
     """
     if need_gb <= 0:
         raise ValueError(f"need_gb must be positive, got {need_gb}")
@@ -1759,7 +1759,7 @@ def check_vllm_transformers_compat(report: PreflightReport):
             f"chain + the workload's own smoke evidence) -> set "
             f"EPM_PREFLIGHT_ALLOW_TRANSFORMERS5=1 for that launch. Do NOT downgrade "
             f"transformers for a model requiring >=5 (e.g. qwen3_5). "
-            f"See .claude/agent-memory/experimenter/feedback_vllm0110_transformers5_breakage.md"
+            f"See the recorded vLLM 0.11.0 / transformers 5 breakage note."
         )
 
 
@@ -1875,7 +1875,7 @@ def check_hf_large_blob_get(report: PreflightReport, opener=None):
             f"HF large-blob GET returned {status} with {received} bytes "
             f"(expected >=1 MiB) — this pod may be DNS-steered to a CDN edge that "
             f"serves 206 + 0 bytes. No accelerator toggle fixes it; see "
-            f".claude/rules/gotchas.md (RunPod HF-CDN zero-byte large-blob trap) for "
+            f"the RunPod HF-CDN zero-byte large-blob gotcha for "
             f"the three-curl discriminator and the VM-to-pod parallel-rsync relay "
             f"recovery."
         )
@@ -1889,8 +1889,8 @@ def check_hf_storage(report: PreflightReport, planned_upload_gb: float | None = 
     unreachable HF API degrades to an 'unknown headroom' warning, and a
     non-parseable ceiling/TTL env value (the helper's deliberate
     ``ValueError``) is caught and reported as a warning here (it still
-    propagates at the fail-loud persist gate in ``train/trainer.py``). See
-    ``.claude/rules/upload-policy.md`` § HF storage-quota 403 for the incident
+    propagates at the fail-loud persist gate in ``train/trainer.py``). See the
+    project's upload policy on HF storage-quota 403 for the incident
     this fronts (#541/#552).
 
     ``planned_upload_gb`` (decimal GB) means "LFS bytes the run REQUIRES on
@@ -1933,7 +1933,7 @@ def check_hf_storage(report: PreflightReport, planned_upload_gb: float | None = 
             f"HF public storage {h.used_tb:.2f} TB exceeds soft ceiling "
             f"{h.ceiling_tb:.1f} TB ({h.n_repos} repos, {h.basis}) — LFS uploads "
             f"(adapters/checkpoints) will 403 at the hard quota; see "
-            f".claude/rules/upload-policy.md § HF storage-quota 403"
+            f"the upload policy on HF storage-quota 403"
         )
     if planned_upload_gb is not None and h.used_tb is not None:
         try:
@@ -1968,7 +1968,7 @@ def check_hf_storage(report: PreflightReport, planned_upload_gb: float | None = 
                     f"#1034); (2) arm EPM_HF_OVERFLOW_ROUTING=1 for upload_model flows whose "
                     f"arming contract permits (environment-wide effect); (3) free quota / raise "
                     f"EPM_HF_STORAGE_SOFT_CEILING_TB after buying storage. "
-                    f"See .claude/rules/upload-policy.md § Proactive detection."
+                    f"See the upload policy on proactive detection."
                 )
         elif ph.verdict in {"unknown", "disabled"}:
             # A REQUESTED gate that could not be evaluated must say so (#1034
@@ -2098,7 +2098,7 @@ def check_hf_lfs_write_gate(report: PreflightReport, planned_upload_gb: float | 
             f"credit recharge at huggingface.co/settings/billing -> 'Billing' -> "
             f"'Auto-recharge' (end-state: the toggle shows ON with a recharge amount + a "
             f"valid payment method listed); (storage): free quota or see "
-            f".claude/rules/upload-policy.md § HF storage-quota 403 — the error excerpt "
+            f"the upload policy on HF storage-quota 403 — the error excerpt "
             f"above governs the exact path (e.g. a 'storage patterns' manual-review 403 "
             f"names its own contact address). Account context: {probe.billing_context}."
         )

@@ -4,9 +4,8 @@
 
 The r1 code re-invoked the SERIAL closed-form LOCO ridge (a 50-fold Python loop
 per cell) ONCE PER PERMUTATION PER CELL for the 1000-perm selection-symmetric
-null — the exact #035 overhead-bound anti-pattern (`.claude/rules/
-vectorize-many-cell-fits.md`), projecting 231 wall-h for Phase D (308× the
-plan's 0.75h). This module BATCHES the null: the design X is FIXED across
+null — the exact #035 overhead-bound anti-pattern, projecting 231 wall-h for
+Phase D (308× the plan's 0.75h). This module BATCHES the null: the design X is FIXED across
 permutations (only the target Y is row-permuted), so every X-only quantity —
 the per-fold train-row standardization, the dual Gram eigendecomposition (PRESS
 λ-select), and the per-λ dual-solve factor `(G + λI)⁻¹` — is computed ONCE per

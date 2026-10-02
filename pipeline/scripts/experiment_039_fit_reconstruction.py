@@ -304,8 +304,8 @@ def _batch_mlp_validity(
     """Batch the MLP validity arm across ALL cells (grouped by (n, d_in, p) shape).
 
     ``mlp_jobs`` is a list of ``(cell_key, Xc, Y_pca)``. The fit uses
-    ``fit_batched_loco_mlp_multihead`` — the production path per
-    `.claude/rules/vectorize-many-cell-fits.md`: ONE shared-trunk net per
+    ``fit_batched_loco_mlp_multihead`` — the production path per the project's
+    many-cell vectorization rule: ONE shared-trunk net per
     (group, fold) predicting all ``p`` PCA dims jointly, E = n_groups × n_folds
     members (48× fewer at p=48 than the per-dim-scalar ``fit_batched_loco_mlp``,
     which needed 8-12h+ on an A100 at 1036 cells and was killed at the 4h
@@ -356,7 +356,7 @@ def _fit_null_draws(
     selection-symmetric null distribution for this cell — the analyzer forms
     the honest max-over-{summary,layer} band by max-selecting these per draw).
 
-    VECTORIZED (#035 mandate, `.claude/rules/vectorize-many-cell-fits.md`): the
+    VECTORIZED (#035 many-cell vectorization mandate): the
     c_C design ``Xc`` is FIXED across permutations (only the PCA target rows are
     permuted), so every X-only LOCO-ridge factor (per-fold standardization, the
     dual Gram eigendecomposition, the per-λ dual-solve inverse) is computed ONCE

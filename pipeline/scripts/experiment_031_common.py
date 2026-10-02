@@ -56,7 +56,7 @@ MARKER_TOKEN_ID = 83399
 JUDGE_MODEL = "claude-sonnet-4-5-20250929"
 
 # HF data-repo destination (plan §6.5 / §10). Overflow repo is the quota-403
-# fallback per .claude/rules/upload-policy.md.
+# fallback per the project's upload policy.
 HF_DATA_REPO = "superkaiba1/explore-persona-space-data"
 HF_OVERFLOW_REPO = "superkaiba1/explore-persona-space-overflow"
 HF_PREFIX = "issue658_theory_assumptions"

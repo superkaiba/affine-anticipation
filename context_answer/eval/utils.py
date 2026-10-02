@@ -152,7 +152,7 @@ def parse_judge_json(text: str) -> dict | list | str | int | float | bool | None
        tolerates the wrapper — the two steps are disjoint.)
 
     On parse failure returns ``None`` — NEVER a coerced placeholder
-    (drop-never-coerce, ``.claude/rules/llm-judging.md`` rule 9; the #766
+    (drop-never-coerce, the project's LLM-judging rule 9; the #766
     ``eval/belief.py`` precedent). Callers must DROP a ``None`` (record an
     error row / exclude from aggregates), never substitute a default score.
     The failure WARNING records total length + a ~500-char head + a ~200-char

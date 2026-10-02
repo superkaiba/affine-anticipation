@@ -22,8 +22,8 @@ data-collection pass) and the Stage-1 analysis (``experiment_038_stage1.py`) sha
   llm-judging.md rule 9 + persona-vectors-recipe.md step 4).
 - ``phase()`` + poll_pipeline.py sentinel writer (the pod-side contract).
 
-Recipe references: ``.claude/rules/persona-vectors-recipe.md`` (the 7-step
-extraction), ``.claude/rules/llm-judging.md`` (graded-primary judge), the #027
+Recipe references: the project's persona-vectors recipe (the 7-step
+extraction), its LLM-judging rules (graded-primary judge), the #027
 hook-capture precedent (``scripts/experiment_027_extract_context_vectors.py``).
 """
 

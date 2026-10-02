@@ -8,8 +8,7 @@ MLP-fit pattern in ``scripts/experiment_035_skill_over_mean.py`` and
 not finish). Those sweeps are **overhead-bound, not FLOP-bound** — the actual
 math is ~19 TFLOP (minutes of real compute); the wall-time was Python loop
 overhead + torch op-dispatch on tiny tensors + thread oversubscription (78
-threads on (49, 512) GEMMs). The fix is VECTORIZATION (`.claude/rules/
-vectorize-many-cell-fits.md`).
+threads on (49, 512) GEMMs). The fix is VECTORIZATION.
 
 What this module does that the serial path did not:
 
@@ -576,7 +575,7 @@ def fit_batched_loco_mlp_multihead(
     (default) is the existing singleton-LOCO behavior byte-for-byte: fold i
     holds out row i, ``E = n_groups * n``. With an (n,) integer label array,
     fold *i* holds out ALL rows of the i-th SORTED-UNIQUE label together
-    (never pointwise — `.claude/rules/ood-generalization-folds.md`), so
+    (never pointwise — held-out folds are group-level, never pointwise), so
     ``E = n_groups * n_folds``; the label array is shared by every group cell
     in the call (all cells share rows). The per-fold init block draws
     ``n_folds`` nets from ``torch.manual_seed(seed)`` (== the old ``n`` draws

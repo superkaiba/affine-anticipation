@@ -6,8 +6,8 @@ argparse registration (``add_argument`` / an explicit ``dest=`` /
 ``add_subparsers(dest=...)`` / ``set_defaults(...)``) or by a runtime
 assignment (``args.<attr> = ...``), and raises ``SystemExit`` naming every
 gap otherwise. Phase-dispatch drivers call it from their ``--import-check``
-mode (see ``.claude/rules/code-style.md`` section "Argparse-attribute
-completeness for phase-dispatch drivers") so a never-smoked phase cannot
+mode (the project's argparse-attribute completeness convention for
+phase-dispatch drivers) so a never-smoked phase cannot
 ship an ``AttributeError`` on a namespace attribute — the #2163 Step-8
 crash class, where ``args.figures_out`` and ``args.harvest_out`` fired on
 the two VM-side phases the smoke never exercised.

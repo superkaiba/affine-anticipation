@@ -371,7 +371,7 @@ def _assert_no_system_role(params: dict, item_id: str) -> None:
 
     The Anthropic Messages API has no "system" message ROLE — a system-bearing
     ``messages`` list 400s EVERY request (invalid_request_error; the #043 r11
-    incident, .claude/rules/gotchas.md). System content must be lifted by the
+    incident). System content must be lifted by the
     BUILDER to the top-level ``system=`` param (see
     ``llm.models.Prompt.anthropic_format`` for a leading-system splitter or
     ``artifacts.datagen._gen_params_from_messages`` for an arbitrary-position

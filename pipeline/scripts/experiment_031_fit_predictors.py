@@ -685,7 +685,7 @@ def _ridge_predict_loco(X: np.ndarray, Y: np.ndarray, lambdas: list[float]) -> n
 
 
 # Live-tensor factor for the batched LOCO chunk cap, per the measured-peak rule
-# (.claude/rules/vectorize-many-cell-fits.md § Memory sizing). Measured 2026-07-04
+# (the project's many-cell memory-sizing convention). Measured 2026-07-04
 # on ONE chunk at the #040 production shape (n=480, d=3584, p=64, fp64, chunk=64,
 # fresh process): ru_maxrss delta 2.34 GiB ≈ chunk × 2.86 × (m·d·8 bytes) — the
 # gathered fold design + its standardized copy + the (m,m) Gram/eig/Qsq blocks +
@@ -734,7 +734,7 @@ def _ridge_predict_loco_batched(
     """BATCHED twin of ``_ridge_predict_loco`` — all N LOCO folds as batched tensor ops.
 
     Fold-for-fold IDENTICAL estimator semantics (#040 vectorize fix round 2,
-    `.claude/rules/vectorize-many-cell-fits.md`): per-fold standardization over
+    the many-cell vectorization rule): per-fold standardization over
     the fold's own N−1 training rows (torch ``.std(correction=0)``, the serial
     convention), the SAME λ grid with per-fold PRESS inner-LOO selection (the
     exact ``_press_loo_mse_per_lambda`` identity — one eigh of the fold Gram

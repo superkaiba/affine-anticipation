@@ -232,7 +232,7 @@ def _hf_home_default() -> str:
     * Local: ``~/.cache/huggingface`` (the user-level shared cache).
       Deliberately NOT ``<project_root>/cache/huggingface``: the project
       root resolves per-checkout, so a per-checkout default gives every
-      git worktree under ``.claude/worktrees/`` its OWN full HF cache
+      git worktree of the research repository its OWN full HF cache
       (2026-06-12 disk triage: two worktrees each held a complete ~14 GB
       Qwen-2.5-7B-Instruct snapshot, driving the VM root disk to 99%).
     """
@@ -333,8 +333,8 @@ def load_dotenv(env_path: str | None = None):
         resolved = resolve_dotenv_path()
         if resolved is None:
             # GCE/SLURM lanes have NO .env file by design — tokens arrive via
-            # startup metadata / sbatch env (.claude/rules/gotchas.md
-            # conditional-sourcing entry, #923). When credential env vars are
+            # startup metadata / sbatch env (the conditional-sourcing
+            # gotcha, #923). When credential env vars are
             # already ambient the message's own predicate ("will fail unless
             # the env is already set") is false, so log INFO, not WARNING.
             ambient = [

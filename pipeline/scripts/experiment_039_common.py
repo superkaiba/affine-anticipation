@@ -31,7 +31,7 @@ Cross-refs: `experiment_031_common` (the recipe switch this extends), `experimen
 fit_predictors` (RIDGE_LAMBDAS/MLP defaults, on main), `vectorized_mlp_skill`
 (the batched LOCO fitters, on main), the stranded `experiment_035_per_position_vC_
 skill.py` on branch `fig-per-position` — REFERENCE ONLY, never imported
-(built-but-stranded protection, `.claude/rules/workflow-fix-on-bug.md`).
+(built-but-stranded protection).
 """
 
 from __future__ import annotations
@@ -371,7 +371,7 @@ def assert_g1_probe_pool_hash(obj: dict, where: str) -> None:
         raise RuntimeError(
             f"g1 probe_pool_hash pin drift in {where}: {pph!r} != {G1_PROBE_POOL_HASH} "
             "(the reused #031 g1 artifact differs from the plan-verified generation — "
-            "refusing, .claude/rules/artifact-reuse.md (f))"
+            "refusing per artifact-reuse fitness check (f))"
         )
 
 
@@ -471,7 +471,7 @@ def assert_sha256(path: Path | str, expected: str, label: str) -> None:
         raise RuntimeError(
             f"{label} sha256 pin drift: {got} != {expected} (the reused artifact "
             f"differs from the plan-verified copy — refuse rather than run on a "
-            f"silently-different generation, .claude/rules/artifact-reuse.md (f))"
+            f"silently-different generation — artifact-reuse fitness check (f))"
         )
 
 

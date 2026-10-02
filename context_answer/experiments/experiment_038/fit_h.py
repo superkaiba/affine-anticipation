@@ -344,7 +344,7 @@ def mlp_fit_predict(
 
     Many-cell sweeps must not loop this serially — batch via
     ``vectorized_mlp_skill.fit_batched_split_mlp`` / ``batched_fold_cv_mlp_r2``
-    (see ``.claude/rules/vectorize-many-cell-fits.md``).
+    (the project's many-cell vectorization rule).
     """
     if num_threads is not None and device == "cpu":
         torch.set_num_threads(int(num_threads))
