@@ -1,0 +1,758 @@
+{
+  "displayed_settings": [
+    "Chat",
+    "Helios",
+    "Wren",
+    "Dana",
+    "Vex"
+  ],
+  "omitted_comparison": "Plain-text assistant; original data preserved",
+  "plotted": {
+    "methods": [
+      "frozen",
+      "bias",
+      "bias_scale",
+      "own"
+    ],
+    "panels": [
+      {
+        "checkpoint": "Base",
+        "direction": "out",
+        "letter": "A",
+        "rows": [
+          {
+            "from": "conversation_paired_stories_assistant__on_policy__attrib_quoted",
+            "label": "Assistant, chat",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.06432215071944658,
+                  0.08495886943846864
+                ],
+                "r2": 0.07328078415842514
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.14207251476491412,
+                  0.1518675189626506
+                ],
+                "r2": 0.14669180915381824
+              },
+              "frozen": {
+                "fold_range": [
+                  -0.49671089080870345,
+                  -0.4342647340871817
+                ],
+                "r2": -0.4683072120844998
+              },
+              "own": {
+                "fold_range": [
+                  0.38715252636282105,
+                  0.4175378427168289
+                ],
+                "r2": 0.4097530547737585
+              }
+            },
+            "to": "conversation_paired_stories_assistant__on_policy__chat"
+          },
+          {
+            "from": "conversation_paired_stories_assistant__on_policy__attrib_quoted",
+            "label": "Helios",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.5085730983745325,
+                  0.5141991558403326
+                ],
+                "r2": 0.511707791471407
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.5088463615566456,
+                  0.5144920971219051
+                ],
+                "r2": 0.5118988059261496
+              },
+              "frozen": {
+                "fold_range": [
+                  0.5058316849556846,
+                  0.5114380353838281
+                ],
+                "r2": 0.5090088154172218
+              },
+              "own": {
+                "fold_range": [
+                  0.5260541904097107,
+                  0.5318507473153733
+                ],
+                "r2": 0.529506027510107
+              }
+            },
+            "to": "char_helios__on_policy__attrib_quoted"
+          },
+          {
+            "from": "conversation_paired_stories_assistant__on_policy__attrib_quoted",
+            "label": "Wren",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.48255911545292485,
+                  0.49228385982762235
+                ],
+                "r2": 0.4870747733939127
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.4831382306509341,
+                  0.4927304046621255
+                ],
+                "r2": 0.4876799480297662
+              },
+              "frozen": {
+                "fold_range": [
+                  0.47647777802758395,
+                  0.48643784988270444
+                ],
+                "r2": 0.4811997428268559
+              },
+              "own": {
+                "fold_range": [
+                  0.5239389284260166,
+                  0.5333335124435048
+                ],
+                "r2": 0.5291966346841714
+              }
+            },
+            "to": "char_wren__on_policy__attrib_quoted"
+          },
+          {
+            "from": "conversation_paired_stories_assistant__on_policy__attrib_quoted",
+            "label": "Dana",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.4875787300225455,
+                  0.4962235740257097
+                ],
+                "r2": 0.49101101885248133
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.4876794948163753,
+                  0.4963060697228562
+                ],
+                "r2": 0.4911195861065217
+              },
+              "frozen": {
+                "fold_range": [
+                  0.4768537486133192,
+                  0.48620631121574187
+                ],
+                "r2": 0.4806957381084322
+              },
+              "own": {
+                "fold_range": [
+                  0.5391500088288312,
+                  0.549437987313603
+                ],
+                "r2": 0.5437771713216268
+              }
+            },
+            "to": "char_dana__on_policy__attrib_quoted"
+          },
+          {
+            "from": "conversation_paired_stories_assistant__on_policy__attrib_quoted",
+            "label": "Vex",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.40765763790892273,
+                  0.41220158742509894
+                ],
+                "r2": 0.4099880679376858
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.4163848456275736,
+                  0.4213278366667682
+                ],
+                "r2": 0.41953131905830243
+              },
+              "frozen": {
+                "fold_range": [
+                  0.3879946145485046,
+                  0.3948199006797023
+                ],
+                "r2": 0.39172759141378216
+              },
+              "own": {
+                "fold_range": [
+                  0.4783966711021702,
+                  0.4846632419746717
+                ],
+                "r2": 0.482483080549535
+              }
+            },
+            "to": "char_vex__on_policy__attrib_quoted"
+          }
+        ]
+      },
+      {
+        "checkpoint": "Base",
+        "direction": "in",
+        "letter": "B",
+        "rows": [
+          {
+            "from": "conversation_paired_stories_assistant__on_policy__chat",
+            "label": "Assistant, chat",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.1690745706495771,
+                  0.18350923262979923
+                ],
+                "r2": 0.17626732674046244
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.16918830171744215,
+                  0.18434133058480406
+                ],
+                "r2": 0.17658744234165927
+              },
+              "frozen": {
+                "fold_range": [
+                  -0.40600068741729256,
+                  -0.27800248145730344
+                ],
+                "r2": -0.34429035206251596
+              },
+              "own": {
+                "fold_range": [
+                  0.5177629661152754,
+                  0.52758472151719
+                ],
+                "r2": 0.5240083899104768
+              }
+            },
+            "to": "conversation_paired_stories_assistant__on_policy__attrib_quoted"
+          },
+          {
+            "from": "char_helios__on_policy__attrib_quoted",
+            "label": "Helios",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.4996661476552373,
+                  0.5083967223642412
+                ],
+                "r2": 0.5053675539768423
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.49981063796559166,
+                  0.5087617059111464
+                ],
+                "r2": 0.5057070754876533
+              },
+              "frozen": {
+                "fold_range": [
+                  0.4946041062773078,
+                  0.5024547479867061
+                ],
+                "r2": 0.5001357033397096
+              },
+              "own": {
+                "fold_range": [
+                  0.5177629661152754,
+                  0.52758472151719
+                ],
+                "r2": 0.5240083899104768
+              }
+            },
+            "to": "conversation_paired_stories_assistant__on_policy__attrib_quoted"
+          },
+          {
+            "from": "char_wren__on_policy__attrib_quoted",
+            "label": "Wren",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.47441186783860256,
+                  0.4812580550914265
+                ],
+                "r2": 0.47837298734380357
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.4747697328626501,
+                  0.48184303605944345
+                ],
+                "r2": 0.4788086145716255
+              },
+              "frozen": {
+                "fold_range": [
+                  0.4585506911622468,
+                  0.4640764273841341
+                ],
+                "r2": 0.4614318679008803
+              },
+              "own": {
+                "fold_range": [
+                  0.5177629661152754,
+                  0.52758472151719
+                ],
+                "r2": 0.5240083899104768
+              }
+            },
+            "to": "conversation_paired_stories_assistant__on_policy__attrib_quoted"
+          },
+          {
+            "from": "char_dana__on_policy__attrib_quoted",
+            "label": "Dana",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.4621256578669747,
+                  0.4668003049596221
+                ],
+                "r2": 0.46516322285487827
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.46216158305142396,
+                  0.466842308355497
+                ],
+                "r2": 0.465251519965176
+              },
+              "frozen": {
+                "fold_range": [
+                  0.43844778584564015,
+                  0.44444415625318145
+                ],
+                "r2": 0.44135475189290024
+              },
+              "own": {
+                "fold_range": [
+                  0.5177629661152754,
+                  0.52758472151719
+                ],
+                "r2": 0.5240083899104768
+              }
+            },
+            "to": "conversation_paired_stories_assistant__on_policy__attrib_quoted"
+          },
+          {
+            "from": "char_vex__on_policy__attrib_quoted",
+            "label": "Vex",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.4424587536939528,
+                  0.45147910244749223
+                ],
+                "r2": 0.44768762936005924
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.4450348062750593,
+                  0.4543526107901056
+                ],
+                "r2": 0.4506773895459363
+              },
+              "frozen": {
+                "fold_range": [
+                  0.4235649180963612,
+                  0.4317611626326525
+                ],
+                "r2": 0.4275792802146238
+              },
+              "own": {
+                "fold_range": [
+                  0.5177629661152754,
+                  0.52758472151719
+                ],
+                "r2": 0.5240083899104768
+              }
+            },
+            "to": "conversation_paired_stories_assistant__on_policy__attrib_quoted"
+          }
+        ]
+      },
+      {
+        "checkpoint": "Instruction-tuned",
+        "direction": "out",
+        "letter": "C",
+        "rows": [
+          {
+            "from": "conversation_paired_stories_assistant__on_policy__attrib_quoted",
+            "label": "Assistant, chat",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.42901880218173083,
+                  0.44052139755051767
+                ],
+                "r2": 0.4349008707850004
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.44211656760322515,
+                  0.45168301995045534
+                ],
+                "r2": 0.44643231934726657
+              },
+              "frozen": {
+                "fold_range": [
+                  0.2579808080098369,
+                  0.28898311578690994
+                ],
+                "r2": 0.2704693594880254
+              },
+              "own": {
+                "fold_range": [
+                  0.6676768770462826,
+                  0.6794285464823051
+                ],
+                "r2": 0.6750569054608924
+              }
+            },
+            "to": "conversation_paired_stories_assistant__on_policy__chat"
+          },
+          {
+            "from": "conversation_paired_stories_assistant__on_policy__attrib_quoted",
+            "label": "Helios",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.5283996622836759,
+                  0.5326944854742129
+                ],
+                "r2": 0.5299665820118452
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.5284009419714224,
+                  0.5327874874913645
+                ],
+                "r2": 0.5299902503051254
+              },
+              "frozen": {
+                "fold_range": [
+                  0.5257874155011177,
+                  0.5304685509755263
+                ],
+                "r2": 0.527556391304424
+              },
+              "own": {
+                "fold_range": [
+                  0.545045943614854,
+                  0.5493149118478111
+                ],
+                "r2": 0.5468433895062268
+              }
+            },
+            "to": "char_helios__on_policy__attrib_quoted"
+          },
+          {
+            "from": "conversation_paired_stories_assistant__on_policy__attrib_quoted",
+            "label": "Wren",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.498998937244161,
+                  0.5089131899112842
+                ],
+                "r2": 0.50496304212057
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.49909393225300225,
+                  0.5091772708724062
+                ],
+                "r2": 0.505193284612812
+              },
+              "frozen": {
+                "fold_range": [
+                  0.494493132681879,
+                  0.5036258284399531
+                ],
+                "r2": 0.49996288870341815
+              },
+              "own": {
+                "fold_range": [
+                  0.5477437128554518,
+                  0.5570768819188505
+                ],
+                "r2": 0.5540567927520562
+              }
+            },
+            "to": "char_wren__on_policy__attrib_quoted"
+          },
+          {
+            "from": "conversation_paired_stories_assistant__on_policy__attrib_quoted",
+            "label": "Dana",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.49229600981210553,
+                  0.5002804682459956
+                ],
+                "r2": 0.49567972378146524
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.49252465845389715,
+                  0.5011667676881938
+                ],
+                "r2": 0.4962625408483996
+              },
+              "frozen": {
+                "fold_range": [
+                  0.4816541287695134,
+                  0.49019266506344594
+                ],
+                "r2": 0.4846941787366822
+              },
+              "own": {
+                "fold_range": [
+                  0.5549921401027231,
+                  0.5649294561985962
+                ],
+                "r2": 0.5610030739831728
+              }
+            },
+            "to": "char_dana__on_policy__attrib_quoted"
+          },
+          {
+            "from": "conversation_paired_stories_assistant__on_policy__attrib_quoted",
+            "label": "Vex",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.41617453627209,
+                  0.43224984053598636
+                ],
+                "r2": 0.42130345745097053
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.4231954647805929,
+                  0.43891090041378966
+                ],
+                "r2": 0.42943907301336903
+              },
+              "frozen": {
+                "fold_range": [
+                  0.3962612145609272,
+                  0.41304202080037666
+                ],
+                "r2": 0.40152171476209714
+              },
+              "own": {
+                "fold_range": [
+                  0.5055016520593076,
+                  0.5180160268146207
+                ],
+                "r2": 0.5118025586001163
+              }
+            },
+            "to": "char_vex__on_policy__attrib_quoted"
+          }
+        ]
+      },
+      {
+        "checkpoint": "Instruction-tuned",
+        "direction": "in",
+        "letter": "D",
+        "rows": [
+          {
+            "from": "conversation_paired_stories_assistant__on_policy__chat",
+            "label": "Assistant, chat",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.21005231917237754,
+                  0.21357105937407062
+                ],
+                "r2": 0.21168318693282942
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.23673439615166858,
+                  0.24197393240834952
+                ],
+                "r2": 0.2393197490312388
+              },
+              "frozen": {
+                "fold_range": [
+                  -0.27971601281897684,
+                  -0.21828650127582017
+                ],
+                "r2": -0.2425282085094702
+              },
+              "own": {
+                "fold_range": [
+                  0.5354396895470188,
+                  0.5516841403866393
+                ],
+                "r2": 0.5450795136374887
+              }
+            },
+            "to": "conversation_paired_stories_assistant__on_policy__attrib_quoted"
+          },
+          {
+            "from": "char_helios__on_policy__attrib_quoted",
+            "label": "Helios",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.5185975480344736,
+                  0.5330482121291178
+                ],
+                "r2": 0.527076108146937
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.5185441825545142,
+                  0.5330785282357844
+                ],
+                "r2": 0.5270420617235445
+              },
+              "frozen": {
+                "fold_range": [
+                  0.5150285129283841,
+                  0.5297492967753381
+                ],
+                "r2": 0.5236529633725432
+              },
+              "own": {
+                "fold_range": [
+                  0.5354396895470188,
+                  0.5516841403866393
+                ],
+                "r2": 0.5450795136374887
+              }
+            },
+            "to": "conversation_paired_stories_assistant__on_policy__attrib_quoted"
+          },
+          {
+            "from": "char_wren__on_policy__attrib_quoted",
+            "label": "Wren",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.4840381122115772,
+                  0.49753075329202
+                ],
+                "r2": 0.49218870315862134
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.4840185937074891,
+                  0.49747153824083845
+                ],
+                "r2": 0.4922315221345273
+              },
+              "frozen": {
+                "fold_range": [
+                  0.47264515879506597,
+                  0.48545494363607966
+                ],
+                "r2": 0.48028750767593
+              },
+              "own": {
+                "fold_range": [
+                  0.5354396895470188,
+                  0.5516841403866393
+                ],
+                "r2": 0.5450795136374887
+              }
+            },
+            "to": "conversation_paired_stories_assistant__on_policy__attrib_quoted"
+          },
+          {
+            "from": "char_dana__on_policy__attrib_quoted",
+            "label": "Dana",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.4624035647107493,
+                  0.476485756641153
+                ],
+                "r2": 0.4713920282834921
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.462518929040701,
+                  0.4764319857899383
+                ],
+                "r2": 0.47146869701081584
+              },
+              "frozen": {
+                "fold_range": [
+                  0.44347607449278015,
+                  0.4580080426810794
+                ],
+                "r2": 0.4524935043077288
+              },
+              "own": {
+                "fold_range": [
+                  0.5354396895470188,
+                  0.5516841403866393
+                ],
+                "r2": 0.5450795136374887
+              }
+            },
+            "to": "conversation_paired_stories_assistant__on_policy__attrib_quoted"
+          },
+          {
+            "from": "char_vex__on_policy__attrib_quoted",
+            "label": "Vex",
+            "methods": {
+              "bias": {
+                "fold_range": [
+                  0.44536199260270226,
+                  0.4573225267630112
+                ],
+                "r2": 0.4538057295882908
+              },
+              "bias_scale": {
+                "fold_range": [
+                  0.4455451383493284,
+                  0.4577807267843449
+                ],
+                "r2": 0.4541027020365602
+              },
+              "frozen": {
+                "fold_range": [
+                  0.4251027163660327,
+                  0.43657807075794175
+                ],
+                "r2": 0.43304770143506516
+              },
+              "own": {
+                "fold_range": [
+                  0.5354396895470188,
+                  0.5516841403866393
+                ],
+                "r2": 0.5450795136374887
+              }
+            },
+            "to": "conversation_paired_stories_assistant__on_policy__attrib_quoted"
+          }
+        ]
+      }
+    ],
+    "x_limits": [
+      -0.5555178626732539,
+      0.7382355183468555
+    ],
+    "x_ticks": [
+      -0.5,
+      0.0,
+      0.5
+    ]
+  },
+  "transfer_errorbars": "Minimum and maximum across five held-out folds"
+}
