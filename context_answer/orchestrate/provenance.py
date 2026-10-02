@@ -1,5 +1,11 @@
 """Git provenance for result-JSON reproducibility metadata.
 
+This is the archived PIPELINE tier's copy: the `pipeline/scripts/` steps import
+it, and nothing else does. Its counterpart `context_answer.provenance` serves
+the figure tier and defines the same `GitProvenance` record and helper names
+with a trimmed probe set. The duplication is deliberate, so a figure rebuild
+pulls in no pipeline dependency.
+
 Consolidates the three duplicate `_git_commit_hash()` helpers previously
 scattered across analysis/artifacts modules. Adds dirty-tree flagging so a
 committed result JSON never claims provenance from a commit that does not
