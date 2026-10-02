@@ -90,8 +90,18 @@ def main(records_dir: Path, out_dir: Path, kinds: tuple[str, ...] = KINDS) -> li
         axes = fig.subplots(1, 2, sharey=True)
         fig.subplots_adjust(left=0.085, right=0.985, bottom=0.28, top=0.80, wspace=0.15)
         all_limits = []
+        # Every value this panel draws, so a sidecar comparison can catch a moved
+        # curve. The submitted sidecar records only the encodings and the input
+        # checksum, so none of the plotted R^2 or bootstrap bands was checkable.
+        plotted: dict = {
+            "turns": turns.tolist(),
+            "bands_drawn": kind != "rotation_sensitivity",
+            "panels": [],
+        }
         for ax, model, letter in zip(axes, ("instruct", "pretrained"), ("A", "B"), strict=True):
             cells = result["models"][model]["cells"]
+            panel: dict = {"letter": letter, "model": model, "curves": []}
+            plotted["panels"].append(panel)
             ax.axvspan(0.7, 3.5, color=ROLES["control"].color, alpha=0.07, zorder=-2)
             ax.axvline(3.5, color=ROLES["control"].color, alpha=0.6, linewidth=1, linestyle=":")
             for src, label, color, marker in encodings:
@@ -105,6 +115,15 @@ def main(records_dir: Path, out_dir: Path, kinds: tuple[str, ...] = KINDS) -> li
                 values = np.array([r["r2"] for r in rows])
                 ci = np.array([r["r2_ci95"] for r in rows])
                 all_limits.extend(ci.ravel())
+                panel["curves"].append(
+                    {
+                        "source": src,
+                        "label": label,
+                        "method": method,
+                        "r2": values.tolist(),
+                        "r2_ci95": ci.tolist(),
+                    }
+                )
                 ax.plot(
                     turns,
                     values,
@@ -120,6 +139,7 @@ def main(records_dir: Path, out_dir: Path, kinds: tuple[str, ...] = KINDS) -> li
                     ax.fill_between(turns, ci[:, 0], ci[:, 1], color=color, alpha=0.13, linewidth=0)
             if kind == "rotation_sensitivity":
                 rotations = np.array(result["models"][model]["rotation_r2"])
+                panel["rotation_r2"] = rotations.tolist()
                 for r in rotations:
                     ax.plot(
                         turns,
@@ -137,6 +157,7 @@ def main(records_dir: Path, out_dir: Path, kinds: tuple[str, ...] = KINDS) -> li
             style_axis(ax)
         lo, hi = min(all_limits), max(all_limits)
         axes[0].set_ylim(np.floor((lo - 0.02) * 10) / 10, min(1, np.ceil((hi + 0.02) * 10) / 10))
+        plotted["y_limits"] = [float(v) for v in axes[0].get_ylim()]
         axes[0].set_ylabel(better_label(r"Held-out $R^2$"))
         legend_kicker(
             fig,
@@ -179,6 +200,7 @@ def main(records_dir: Path, out_dir: Path, kinds: tuple[str, ...] = KINDS) -> li
             n_conversations=4975,
             answer_draws=1,
             render=saved["record"],
+            plotted=plotted,
             encodings=[dict(source=s, label=la, color=c, marker=m) for s, la, c, m in encodings],
             caveat=(
                 "Turns1–3 overlap pooled source support; forward transfer is turns4–12. "

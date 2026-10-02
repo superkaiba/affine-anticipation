@@ -57,9 +57,17 @@ METHODS = (
 
 
 def transfer_figure(summary, out):
-    """Render the archived chat/story transfer comparisons and fold ranges."""
+    """Render the archived chat/story transfer comparisons and fold ranges.
+
+    Returns the ``save_c2a_figure`` result plus a ``plotted`` record of every
+    value the figure draws: one entry per panel, row and method, holding the
+    held-out R^2 at the marker and the fold range the error bar spans. The
+    submitted sidecar records only which settings were displayed, so without
+    this block nothing the figure actually shows is checkable.
+    """
     fig, fraction = c2a_figure("full", 0.85)
     axes = fig.subplots(2, 2)
+    plotted: dict = {"methods": [key for key, *_ in METHODS], "panels": []}
     # Display names only; the data keys in the summary keep their own spelling.
     labels = ["Assistant, chat", "Helios", "Wren", "Dana", "Vex"]
     endpoints = [
@@ -76,6 +84,13 @@ def transfer_figure(summary, out):
         checkpoint = "Instruction-tuned" if model.endswith("-instruct") else "Base"
         for col, direction in enumerate(("out", "in")):
             ax = axes[row, col]
+            panel: dict = {
+                "letter": "ABCD"[row * 2 + col],
+                "checkpoint": checkpoint,
+                "direction": direction,
+                "rows": [],
+            }
+            plotted["panels"].append(panel)
             for j, (_, prefix) in enumerate(SETTINGS):
                 source, target = (STORY, prefix) if direction == "out" else (prefix, STORY)
                 pair = next(
@@ -83,9 +98,15 @@ def transfer_figure(summary, out):
                     for r in result["transfers"]
                     if r["source"] == source and r["target"] == target
                 )
+                drawn: dict = {"label": labels[j], "from": source, "to": target, "methods": {}}
+                panel["rows"].append(drawn)
                 for offset, (key, _, color, marker) in zip(np.linspace(-0.24, 0.24, 4), METHODS):
                     value = pair["methods"][key]
                     lo, hi = value["fold_range"]
+                    drawn["methods"][key] = {
+                        "r2": float(value["r2"]),
+                        "fold_range": [float(lo), float(hi)],
+                    }
                     ax.errorbar(
                         value["r2"],
                         j + offset,
@@ -121,6 +142,8 @@ def transfer_figure(summary, out):
     ]
     fig.legend(handles=handles, loc="lower center", ncol=4, frameon=False)
     fig.subplots_adjust(left=0.17, right=0.99, bottom=0.11, top=0.90, hspace=0.60, wspace=0.70)
+    plotted["x_limits"] = [float(low - padding), float(high + padding)]
+    plotted["x_ticks"] = [-0.5, 0.0, 0.5]
     rendered = save_c2a_figure(
         fig,
         out / STEM,
@@ -130,7 +153,7 @@ def transfer_figure(summary, out):
         creator=f"figures/{Path(__file__).name}",
     )
     plt.close(fig)
-    return rendered
+    return rendered, plotted
 
 
 def main(records_dir: Path, out_dir: Path) -> list[Path]:
@@ -145,9 +168,10 @@ def main(records_dir: Path, out_dir: Path) -> list[Path]:
             raise ValueError("Expected twelve archived source-target pairs per model")
     out_dir.mkdir(parents=True, exist_ok=True)
     set_c2a_style()
-    rendered = transfer_figure(data["models"], out_dir)
+    rendered, plotted = transfer_figure(data["models"], out_dir)
     meta = {
         "render": rendered["record"],
+        "plotted": plotted,
         "plotting_script": f"figures/{Path(__file__).name}",
         "plotter_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "data_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
