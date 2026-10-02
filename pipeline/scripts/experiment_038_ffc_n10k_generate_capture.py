@@ -34,7 +34,7 @@ Round-1 corpus consistency: this writes ONLY the new ~6,500 contexts. The driver
 combines pass-B (5,000, reused byte-for-byte — so round-2's val/test, drawn from
 the first-5,000 ids, stay byte-identical to round-1) + these new rows = 11,500.
 
-Outputs (local + HF ``experiment_038_monitoring/fitter-fair-comparison-n10k/``):
+Outputs (local + HF ``issue779_monitoring/fitter-fair-comparison-n10k/``):
   new_context_vectors.pt   {cx_last, cx_mean, v_x, summ_p1, valid_p1, summ_p2,
                             prompts, stream_positions, layers, source, metadata}
   raw_completions.json     [{ci, prompt, response}]
@@ -81,7 +81,7 @@ logger = logging.getLogger("experiment_038_ffc_n10k_gc")
 N_LAYERS = C.EXPECTED_LAYERS  # 28
 H_DIM = C.EXPECTED_HIDDEN  # 3584
 DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct"  # MUST match round-1 pass-B (Qwen-2.5-7B-Instruct)
-HF_PREFIX = "experiment_038_monitoring/fitter-fair-comparison-n10k"
+HF_PREFIX = "issue779_monitoring/fitter-fair-comparison-n10k"
 LMSYS_REPO = "lmsys/lmsys-chat-1m"
 # Round-1 ctx0 prompt (position 0 of the re-derived round-1 set) — asserted so a
 # stream-ordering drift that would also invalidate the disjointness check fails loud.

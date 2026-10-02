@@ -86,9 +86,10 @@ layer-19 whitening statistics from the data repo. Produces
 
 `EPS issue` is the issue number in the authors' private research repository, from
 which every script here was ported. The supplement renamed `issueNNNN_*` scripts
-to `experiment_0NN_*`, and this release keeps those names. The `HF prefix`
-column gives the real, unrenamed prefix on the Hugging Face repos, which is what
-you need to find a bank.
+to `experiment_0NN_*`, and this release keeps those script names. Hugging Face
+path prefixes are not renamed: the `HF prefix` column below is what the code
+actually uses, so a prefix read out of a script resolves against the public
+repos as written.
 
 | Script | Private-repo original | Issue | Computes | Record produced | HF prefix consumed |
 |---|---|---|---|---|---|
@@ -153,17 +154,29 @@ fallback when a prefix hits the per-repo file-count limit. It is private and not
 publicly fetchable. The constant is kept so the three-repo upload logic reads
 correctly.
 
+Prefixes appear in the code exactly as they exist on the repos, for example
+`issue779_monitoring/fitter-fair-comparison-n1m/final_token_capture/` in
+`capture_answers.py` and `issue1901_mlpdense/analysis_tensors/` in `fit_mlp.py`.
+
 The scripts resolve `context_answer` from the installed package, so either
 install the repository (`pip install -e .`) or put the repository root on
 `PYTHONPATH`. Sibling-script imports such as `import capture_answers` resolve
-from `pipeline/scripts/` without extra setup.
+from `pipeline/scripts/` without extra setup. One library module,
+`context_answer/analysis/vectorized_mlp_skill.py`, imports a sibling experiment
+script at module level, so importing it also needs `pipeline/scripts/` on
+`PYTHONPATH`.
 
 ## Experiment label map
 
-Every `experiment_0NN` label in this directory, in the records, and in the code
-comments maps to one private-repo issue number. The map is complete and the
-labels were assigned in lexicographic order of the issue number, which is why
-`experiment_016` sits between `experiment_015` and `experiment_017`.
+Every `experiment_0NN` label still in this directory, in the records, and in the
+code comments maps to one private-repo issue number. The labels survive as
+script and module names, logger names, cross-references in docstrings, and
+`eval_results/` paths, so the map is what you need to follow a reference such as
+"the #038 pass-B bundle" or `experiment_031_fit_predictors` back to its issue.
+Hugging Face prefixes are not in that set: those carry their real
+`issue<N>_<slug>` spelling. The map is complete, and the labels were assigned in
+lexicographic order of the issue number, which is why `experiment_016` sits
+between `experiment_015` and `experiment_017`.
 
 | Label | Issue | Label | Issue | Label | Issue | Label | Issue |
 |---|---|---|---|---|---|---|---|
@@ -191,9 +204,6 @@ The code here is archived, not maintained, and not a working reproduction path.
 - The code retains historical research infrastructure: cloud transfer, pod
   bootstrap, preflight checks, multi-organization API dispatch. Those paths
   depend on accounts and hosts that are not part of this release.
-- Hugging Face prefixes appear in the code with the renamed `experiment_0NN_*`
-  spelling, so the string literals do not resolve against the real repos. Use
-  the label map and the `HF prefix` column above to translate.
 - Two local staging paths under `/mnt/context_answer-data/anonymous_author/`
   (in `experiment_038_arm_headline.py` and
   `experiment_038_arm_headline_summaries.py`) are leftovers from the research

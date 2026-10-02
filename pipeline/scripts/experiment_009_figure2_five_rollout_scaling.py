@@ -52,14 +52,14 @@ DEFAULT_STAGE = PROJECT_ROOT / "data/experiment_009/figure2_five_rollout_scaling
 DEFAULT_OUT = PROJECT_ROOT / "eval_results/experiment_009/figure2_five_rollout_scaling.json"
 
 BASE_FILES = {
-    "pass_b": "experiment_038_monitoring/analysis_tensors/pass_b/train_context_vectors.pt",
-    "whiten": "experiment_009_mlpdense/analysis_tensors/whiten_stats_L19.npz",
-    "test_draws": "experiment_009_avgpool/analysis_tensors/kresample/V_test_shard00.npz",
+    "pass_b": "issue779_monitoring/analysis_tensors/pass_b/train_context_vectors.pt",
+    "whiten": "issue1901_mlpdense/analysis_tensors/whiten_stats_L19.npz",
+    "test_draws": "issue1901_avgpool/analysis_tensors/kresample/V_test_shard00.npz",
 }
 
 
 def _prediction_path(n_train: int, predictor: str) -> str:
-    return f"experiment_009_mlpdense/analysis_tensors/preds_L19_n{n_train}_{predictor}.npz"
+    return f"issue1901_mlpdense/analysis_tensors/preds_L19_n{n_train}_{predictor}.npz"
 
 
 def _sha256(path: Path, block: int = 8 << 20) -> str:

@@ -9,7 +9,7 @@ PUBLIC dataset repo with no scrub step anywhere in the pipeline. The
 #015 repack then re-uploaded the same bytes inside ``__packed__`` tar
 shards, re-triggering HF's scanner on content that had already been
 triaged loose (7 "Lob" detections in
-``experiment_012_screening/__packed__/shard-c6-00001.tar``). A local sweep of
+``issue2224_screening/__packed__/shard-c6-00001.tar``). A local sweep of
 the two chunk-6 text shards found ~15 REAL third-party credentials HF
 never flagged (OpenAI keys carrying the ``T3BlbkFJ`` marker, a GitHub
 fine-grained PAT, an HF token, signed JWTs) — HF's scanner is not a

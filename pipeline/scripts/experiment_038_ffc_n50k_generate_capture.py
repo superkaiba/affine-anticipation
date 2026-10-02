@@ -36,7 +36,7 @@ Two things are genuinely new here (n50k-specific), everything else is REUSE:
    each shard captures its range in ``--shard-size`` sub-chunks and, per chunk:
    STACKS the kept rows into one bundle ``.pt`` (mmap-slice-friendly for the
    fits driver), writes the rollout-text ``raw_completions`` JSON, uploads BOTH
-   to the HF data repo (``experiment_038_monitoring/fitter-fair-comparison-n50k/``),
+   to the HF data repo (``issue779_monitoring/fitter-fair-comparison-n50k/``),
    sha256-verifies the ``.pt`` against the Hub LFS metadata, then DELETES the
    local ``.pt`` before the next chunk. The full capture is ~7.6 MB/context
    (~306 GB total) — WAY over the ~130 GB MooseFS per-pod quota — so nothing
@@ -101,7 +101,7 @@ N_LAYERS = C.EXPECTED_LAYERS  # 28
 H_DIM = C.EXPECTED_HIDDEN  # 3584
 DEFAULT_MODEL = N10.DEFAULT_MODEL  # Qwen/Qwen2.5-7B-Instruct (round-1 pass-B model)
 LMSYS_REPO = N10.LMSYS_REPO
-HF_PREFIX = "experiment_038_monitoring/fitter-fair-comparison-n50k"
+HF_PREFIX = "issue779_monitoring/fitter-fair-comparison-n50k"
 
 # Corpus counts (n is the only variable).
 N_ROUND1 = 5000  # round-1 pass_b non-empty first-turns (re-derived by skipping the first 5000)
@@ -620,13 +620,13 @@ def _smoke(args) -> int:
     try:
         # HUB_VERIFY_RETRY_EXEMPT: self-test monkeypatch of the resume-index error paths — attribute reference only, no network call.
         huggingface_hub.HfApi.list_repo_tree = _lazy_raise(EntryNotFoundError("missing prefix"))
-        assert _remote_index("experiment_038_monitoring/does-not-exist/final_token_capture") == {}, (
+        assert _remote_index("issue779_monitoring/does-not-exist/final_token_capture") == {}, (
             "EntryNotFoundError (first-run missing prefix) must yield an EMPTY resume index"
         )
         # HUB_VERIFY_RETRY_EXEMPT: self-test monkeypatch of the resume-index error paths — attribute reference only, no network call.
         huggingface_hub.HfApi.list_repo_tree = _lazy_raise(RepositoryNotFoundError("repo gone"))
         try:
-            _remote_index("experiment_038_monitoring/does-not-exist/raw_completions")
+            _remote_index("issue779_monitoring/does-not-exist/raw_completions")
             raise AssertionError("RepositoryNotFoundError must PROPAGATE, not be swallowed")
         except RepositoryNotFoundError:
             pass

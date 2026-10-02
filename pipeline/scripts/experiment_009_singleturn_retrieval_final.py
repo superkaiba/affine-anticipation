@@ -5,7 +5,7 @@ This is an analysis-only follow-up to issue #009.  It repairs two protocol
 problems in the earlier ``avgpool_scaleup`` read:
 
 1. whitening is fitted exclusively on the 963,444 single-turn training-answer
-   bank (the banked ``experiment_009_mlpdense`` sufficient-statistics artifact), not
+   bank (the banked ``issue1901_mlpdense`` sufficient-statistics artifact), not
    borrowed from the multi-turn line;
 2. exact duplicate answer vectors are removed before candidate pools are
    formed.  The standard deduplication keeps the first representative of each
@@ -75,17 +75,17 @@ BOOT_SEED = 190_141
 WHITEN_LAMBDA = 0.1
 
 HF_FILES = {
-    "pass_b": "experiment_038_monitoring/analysis_tensors/pass_b/train_context_vectors.pt",
-    "distractors": "experiment_009_metrics/analysis_tensors/distractors_L19.npz",
-    "whiten": "experiment_009_mlpdense/analysis_tensors/whiten_stats_L19.npz",
-    "ridge_pred": "experiment_009_mlpdense/analysis_tensors/preds_L19_n963444_ridge.npz",
-    "mlp_pred": "experiment_009_mlpdense/analysis_tensors/preds_L19_n963444_mlp.npz",
-    "ridge_weights": "experiment_038_monitoring/n1m_readout/weights/L19/ridge.pt",
-    "test_draws": "experiment_009_avgpool/analysis_tensors/kresample/V_test_shard00.npz",
-    "distr_draws_0": "experiment_009_avgpool/analysis_tensors/kresample/V_distr_shard00.npz",
-    "distr_draws_1": "experiment_009_avgpool/analysis_tensors/kresample/V_distr_shard01.npz",
-    "distr_draws_2": "experiment_009_avgpool/analysis_tensors/kresample/V_distr_shard02.npz",
-    "distr_draws_3": "experiment_009_avgpool/analysis_tensors/kresample/V_distr_shard03.npz",
+    "pass_b": "issue779_monitoring/analysis_tensors/pass_b/train_context_vectors.pt",
+    "distractors": "issue1901_metrics/analysis_tensors/distractors_L19.npz",
+    "whiten": "issue1901_mlpdense/analysis_tensors/whiten_stats_L19.npz",
+    "ridge_pred": "issue1901_mlpdense/analysis_tensors/preds_L19_n963444_ridge.npz",
+    "mlp_pred": "issue1901_mlpdense/analysis_tensors/preds_L19_n963444_mlp.npz",
+    "ridge_weights": "issue779_monitoring/n1m_readout/weights/L19/ridge.pt",
+    "test_draws": "issue1901_avgpool/analysis_tensors/kresample/V_test_shard00.npz",
+    "distr_draws_0": "issue1901_avgpool/analysis_tensors/kresample/V_distr_shard00.npz",
+    "distr_draws_1": "issue1901_avgpool/analysis_tensors/kresample/V_distr_shard01.npz",
+    "distr_draws_2": "issue1901_avgpool/analysis_tensors/kresample/V_distr_shard02.npz",
+    "distr_draws_3": "issue1901_avgpool/analysis_tensors/kresample/V_distr_shard03.npz",
 }
 
 DEFAULT_STAGE = PROJECT_ROOT / "data" / "experiment_009" / "singleturn_retrieval_final"

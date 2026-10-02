@@ -38,7 +38,7 @@ Everything below is the n50k recipe verbatim EXCEPT the four n1m-specific deltas
    ``layers=[14,19,26]`` so only those layers are materialized. ~86 KB/context fp32
    (2 fields x 3 layers x 3584 x 4 bytes) => ~82 GB total across ~960k contexts.
    Same ``.pt`` shard-chunk format + upload->verify->PURGE cycle as n50k; HF prefix
-   ``experiment_038_monitoring/fitter-fair-comparison-n1m/final_token_capture/``.
+   ``issue779_monitoring/fitter-fair-comparison-n1m/final_token_capture/``.
 
 4. **Multi-pod sharding.** The manifest is built ONCE (``--build-sampling-manifest``,
    which ALSO uploads it to HF) and every shard reads it (``--manifest-from-hf``
@@ -103,7 +103,7 @@ H_DIM = C.EXPECTED_HIDDEN  # 3584
 DEFAULT_MODEL = N50.DEFAULT_MODEL  # Qwen/Qwen2.5-7B-Instruct (round-1 pass-B model)
 LMSYS_REPO = N10.LMSYS_REPO  # lmsys/lmsys-chat-1m
 WILDCHAT_REPO = "allenai/WildChat-1M"
-HF_PREFIX = "experiment_038_monitoring/fitter-fair-comparison-n1m"
+HF_PREFIX = "issue779_monitoring/fitter-fair-comparison-n1m"
 MANIFEST_SUBDIR = "sampling_manifest"  # HF: {HF_PREFIX}/sampling_manifest/{part_*.jsonl, meta.json}
 
 # Chunk-upload batching (#038 n1m fleet HF-429 fix): accumulate K chunks locally,
@@ -143,7 +143,7 @@ CAPTURE_LAYERS = [14, 19, 26]
 # pass_b bundle (val/test prompt source) — local cache + HF fallback (the brief's
 # named path; the fits loader shares it).
 PASS_B_LOCAL = PROJECT_ROOT / "data" / "experiment_038" / "pass_b" / "train_context_vectors.pt"
-PASS_B_HF_PATH = "experiment_038_monitoring/analysis_tensors/pass_b/train_context_vectors.pt"
+PASS_B_HF_PATH = "issue779_monitoring/analysis_tensors/pass_b/train_context_vectors.pt"
 
 # Byte budget per manifest JSONL part (<9 MB => non-LFS on the HF data repo).
 MANIFEST_PART_BYTES = 8 * 1024 * 1024

@@ -57,7 +57,7 @@ GENERATION_SUFFIX = "<|im_start|>assistant\n"
 
 HF_DATA_REPO = "superkaiba1/explore-persona-space-data"
 HF_OVERFLOW_REPO = "superkaiba1/explore-persona-space-overflow"
-HF_PREFIX = "experiment_038_monitoring"
+HF_PREFIX = "issue779_monitoring"
 
 TRAITS = ("evil", "sycophancy", "hallucination")
 

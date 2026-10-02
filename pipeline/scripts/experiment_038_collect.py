@@ -32,7 +32,7 @@ Passes (independent; sharded over --gpu-id workers in production):
   judge, per trait x layer x mode. Prints GATE_0 lines; selects the read-out
   layer per trait.
 
-Output cache: data/experiment_038/pass_a/, pass_b/, step0/ (+ HF experiment_038_monitoring/).
+Output cache: data/experiment_038/pass_a/, pass_b/, step0/ (+ HF issue779_monitoring/).
 --smoke runs the IDENTICAL path on 1 trait x 1 condition x 2 Q x 2 rollouts.
 """
 
@@ -972,7 +972,7 @@ def _split_raw_completions(out_dir: Path, staging_dir: Path) -> list[tuple[str, 
 
 
 def _upload_raw_completions(out_dir: Path, smoke: bool) -> None:
-    """Upload per-cell rollout TEXT under ``experiment_038_monitoring/raw_completions/``, verified.
+    """Upload per-cell rollout TEXT under ``issue779_monitoring/raw_completions/``, verified.
 
     Plan v5 §10 row (c) mandate: the raw completion text MUST land under the
     canonical ``raw_completions/`` prefix (NOT ``analysis_tensors/``), and the

@@ -60,7 +60,7 @@ TURN_NL_TOKEN_ID = 198
 # HF data-repo destination (SHARED with #031/#812 — the aligned-subset store
 # lands under #031's prefix so #812 consumes it without re-extraction, plan §13).
 HF_DATA_REPO = "superkaiba1/explore-persona-space-data"
-HF_PREFIX = "experiment_031_theory_assumptions"
+HF_PREFIX = "issue658_theory_assumptions"
 # Phase B aligned-subset store (plan §13). One file per context.
 ANSWER_POSITION_SWEEP_SUBDIR = "answer_position_sweep"
 # The 50-context battery snapshot pin (uploaded as an experiment_039 input, §4 / the
@@ -79,7 +79,7 @@ I658_E0_GEN_PREFIX = f"{HF_PREFIX}/raw_completions/e0_gen"
 
 # #027 last-input-token c_C store (the reconstruction predictor) + its probe pool
 # pin (fail loud on drift — same 48-probe battery).
-I594_CC_LAST_FILE = "experiment_027_context_geometry/analysis_tensors/context_vectors_mean.pt"
+I594_CC_LAST_FILE = "issue594_context_geometry/analysis_tensors/context_vectors_mean.pt"
 I594_PROBE_POOL_HASH = "ad687becec266286549aaaa1af3b35e246d593e012e233564e58ff75fb015dd7"
 
 # ── UltraChat `_g1` genre arm (same-issue follow-up `ultrachat-genre-summary-sweep`) ──
@@ -103,7 +103,7 @@ G1_ANSWER_POSITION_SWEEP_SUBDIR = f"{ANSWER_POSITION_SWEEP_SUBDIR}_{G1_GENRE_TAG
 # Round out-dir / HF-mirror conventions (the follow-up-label convention).
 G1_FOLLOWUP_LABEL = "ultrachat-genre-summary-sweep"
 G1_OUT_DIR = PROJECT_ROOT / "eval_results" / "experiment_039" / G1_FOLLOWUP_LABEL
-G1_HF_RESULTS_PREFIX = f"experiment_039_results/{G1_FOLLOWUP_LABEL}"
+G1_HF_RESULTS_PREFIX = f"issue810_results/{G1_FOLLOWUP_LABEL}"
 # The parent's committed Phase-C graded E0 (branch experiment_039) — the `betley`
 # E0-target axis of the read-out 2×2 square (never re-judged this round).
 BETLEY_E0_HIGHM_FILE = (
@@ -146,7 +146,7 @@ ANSWER_POSITION_SWEEP_UH_SUBDIR = "answer_position_sweep_user_header"
 # Round out-dir / HF-mirror conventions (the follow-up-label convention).
 UH_FOLLOWUP_LABEL = "user-header-newline-summary"
 UH_OUT_DIR = PROJECT_ROOT / "eval_results" / "experiment_039" / UH_FOLLOWUP_LABEL
-UH_HF_RESULTS_PREFIX = f"experiment_039_results/{UH_FOLLOWUP_LABEL}"
+UH_HF_RESULTS_PREFIX = f"issue810_results/{UH_FOLLOWUP_LABEL}"
 # Compact new-row summaries tensor (the CPU-chain input; ~90 MB at fp16 —
 # 50 ctx × 9 rows × 28 layers × 3584 dims).
 UH_SUMMARIES_HF_FILE = f"{UH_HF_RESULTS_PREFIX}/uh_summaries.pt"
@@ -161,7 +161,7 @@ HE_FOLLOWUP_LABEL = "header-echo-ablation-capture"
 # Phase B-he aligned-subset store destination (plan v15 § Storage naming).
 ANSWER_POSITION_SWEEP_HE_SUBDIR = "answer_position_sweep_header_echo"
 HE_OUT_DIR = PROJECT_ROOT / "eval_results" / "experiment_039" / HE_FOLLOWUP_LABEL
-HE_HF_RESULTS_PREFIX = f"experiment_039_results/{HE_FOLLOWUP_LABEL}"
+HE_HF_RESULTS_PREFIX = f"issue810_results/{HE_FOLLOWUP_LABEL}"
 # Compact empty-answer summaries pack (the CPU-chain input; same shape/schema
 # as uh_summaries.pt — 50 ctx × 9 rows × 28 layers × 3584 fp16).
 HE_SUMMARIES_HF_FILE = f"{HE_HF_RESULTS_PREFIX}/he_summaries.pt"
@@ -185,7 +185,7 @@ BTDR_FOLLOWUP_LABEL = "boundary-truncation-dose-response"
 # Per-k aligned-subset store subdir under HF_PREFIX (plan v18 § Storage naming).
 ANSWER_POSITION_SWEEP_BTDR_SUBDIR_TMPL = "answer_position_sweep_btdr_k{pct}"
 BTDR_OUT_DIR = PROJECT_ROOT / "eval_results" / "experiment_039" / BTDR_FOLLOWUP_LABEL
-BTDR_HF_RESULTS_PREFIX = f"experiment_039_results/{BTDR_FOLLOWUP_LABEL}"
+BTDR_HF_RESULTS_PREFIX = f"issue810_results/{BTDR_FOLLOWUP_LABEL}"
 # Compact per-k truncated-answer summaries pack (the CPU-chain input).
 BTDR_SUMMARIES_HF_FILE_TMPL = "btdr_summaries_k{pct}.pt"
 # The production k grid (interior points; endpoints k=0 / k=100 reuse the

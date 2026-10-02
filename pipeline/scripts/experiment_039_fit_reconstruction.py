@@ -36,7 +36,7 @@ Usage::
 
     # free leg + fit (0-GPU CPU, after Phase B store lands on HF):
     uv run python scripts/experiment_039_fit_reconstruction.py \\
-        --position-store-hf experiment_031_theory_assumptions/answer_position_sweep \\
+        --position-store-hf issue658_theory_assumptions/answer_position_sweep \\
         --out eval_results/experiment_039
 
     # smoke (2 layers, ridge only, tiny synthetic-safe): --smoke
