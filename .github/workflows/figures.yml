@@ -1,0 +1,23 @@
+name: figures
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e ".[dev]"
+      - run: python -m figures.make_all --out out
+      - run: python pipeline/verify_records.py
+      - run: pytest -q
+      - uses: actions/upload-artifact@v4
+        with:
+          name: figures
+          path: out/*.pdf
