@@ -19,17 +19,21 @@ Three load-bearing properties (do not weaken any of them):
    displaces the ORIGINAL exception.
 
 Module-level imports are stdlib-only so lightweight scripts can import this without
-dragging the ML stack; ``torch`` and ``numpy`` are imported lazily inside their wrappers.
+dragging the ML stack. ``numpy`` is imported lazily inside ``savez_atomic``.
+
+Two names ship: ``atomic_replace``, the primitive, and ``savez_atomic``, the one
+wrapper the pipeline steps call. The donor module's other typed wrappers
+(json / jsonl / text / bytes / torch / npy) are not carried here, since nothing in
+this release called them, and ``atomic_replace`` is all a new one needs.
 """
 
 from __future__ import annotations
 
 import contextlib
-import json
 import logging
 import os
 import uuid
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
@@ -77,81 +81,6 @@ def atomic_replace(path: Path, *, logger: logging.Logger | None = None) -> Itera
         raise
 
 
-def write_json_atomic(
-    path: Path | str,
-    obj: Any,
-    *,
-    indent: int | None = 2,
-    ensure_ascii: bool = False,
-    sort_keys: bool = False,
-    default: Callable[[Any], Any] | None = None,
-    logger: logging.Logger | None = None,
-) -> None:
-    """Atomically write ``obj`` as JSON (utf-8) to ``path``."""
-    path = Path(path)
-    with atomic_replace(path, logger=logger) as tmp:
-        tmp.write_text(
-            json.dumps(
-                obj, indent=indent, ensure_ascii=ensure_ascii, sort_keys=sort_keys, default=default
-            ),
-            encoding="utf-8",
-        )
-
-
-def write_jsonl_atomic(
-    path: Path | str,
-    rows: Iterable[Any],
-    *,
-    ensure_ascii: bool = False,
-    logger: logging.Logger | None = None,
-) -> None:
-    """Atomically write ``rows`` as one-JSON-object-per-line (utf-8) to ``path``."""
-    path = Path(path)
-    with atomic_replace(path, logger=logger) as tmp, tmp.open("w", encoding="utf-8") as fh:
-        for row in rows:
-            fh.write(json.dumps(row, ensure_ascii=ensure_ascii))
-            fh.write("\n")
-
-
-def write_text_atomic(
-    path: Path | str,
-    text: str,
-    *,
-    encoding: str = "utf-8",
-    logger: logging.Logger | None = None,
-) -> None:
-    """Atomically write ``text`` to ``path`` (encoding explicit, default utf-8)."""
-    path = Path(path)
-    with atomic_replace(path, logger=logger) as tmp:
-        tmp.write_text(text, encoding=encoding)
-
-
-def write_bytes_atomic(
-    path: Path | str,
-    data: bytes,
-    *,
-    logger: logging.Logger | None = None,
-) -> None:
-    """Atomically write raw ``data`` bytes to ``path``."""
-    path = Path(path)
-    with atomic_replace(path, logger=logger) as tmp:
-        tmp.write_bytes(data)
-
-
-def save_pt_atomic(
-    path: Path | str,
-    obj: Any,
-    *,
-    logger: logging.Logger | None = None,
-) -> None:
-    """Atomically ``torch.save(obj)`` to ``path`` (torch imported lazily)."""
-    import torch  # lazy: keep module-level imports stdlib-only
-
-    path = Path(path)
-    with atomic_replace(path, logger=logger) as tmp:
-        torch.save(obj, tmp)
-
-
 def savez_atomic(
     path: Path | str,
     *,
@@ -168,7 +97,8 @@ def savez_atomic(
 
     NOTE: an array keyed ``compressed`` or ``logger`` collides with the keyword-only
     parameters (``np.savez`` has the analogous trap with its own kwargs) — pass such
-    arrays by building the dict first and renaming the key, or use ``save_npy_atomic``.
+    arrays by building the dict first and renaming the key, or write through
+    ``atomic_replace`` directly.
     """
     import numpy as np  # lazy: keep module-level imports stdlib-only
 
@@ -178,21 +108,3 @@ def savez_atomic(
             np.savez_compressed(fh, **arrays)
         else:
             np.savez(fh, **arrays)
-
-
-def save_npy_atomic(
-    path: Path | str,
-    arr: Any,
-    *,
-    logger: logging.Logger | None = None,
-) -> None:
-    """Atomically ``np.save`` a single array to ``path``.
-
-    Same open-file-handle discipline as ``savez_atomic``: ``np.save`` APPENDS ``.npy``
-    to a path-name lacking it, so the write goes through a handle, never the temp path.
-    """
-    import numpy as np  # lazy: keep module-level imports stdlib-only
-
-    path = Path(path)
-    with atomic_replace(path, logger=logger) as tmp, tmp.open("wb") as fh:
-        np.save(fh, arr)

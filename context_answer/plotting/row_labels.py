@@ -1,30 +1,24 @@
 """Display names for the Section 4.2 per-element answer-shift rows.
 
-One source of truth for the nine main rows, the three appendix slot rows, and
-the two refusal group headings that the Section 4.2 figures print.
+One source of truth for the nine main rows and the three appendix slot rows the
+Section 4.2 figures print.  In this release ``figures/section42.py`` is the only
+consumer: it imports the row names to build its group tuples and calls
+:func:`tick_label` to format each y-tick.
 
-The row string does double duty.  ``scripts/issue2564_element_shift_rows.py``
-writes it into ``eval_results/issue_2564/section42_element_shifts.json`` as the
-``row`` field, and both renderers key their group tuples off that same string
+The row string does double duty.  The rebuild step that produced
+``records/issue_2564/section42_element_shifts.json`` wrote it into that file as
+the ``row`` field, and the renderer keys its group tuples off that same string
 before printing it as a y-tick label.  Join key and display label are the same
 object, so renaming one without the other silently drops a row from a figure.
 Importing these constants moves both from one place: a rename lands here, the
-rebuild step rewrites the banked JSON, and the renderers pick up the new label
+rebuild step rewrites the banked JSON, and the renderer picks up the new label
 and the new key together.
 
-Why a sibling module rather than ``c2a_plot_style``: that module imports
+Why a sibling module rather than the plotting-style module: that module imports
 matplotlib, PIL and ``font_manager`` at import time, and the rebuild step is a
-pure torch/numpy pass that draws nothing.  Keeping the names in a module with
-no third-party imports lets the generator hold the same constants as the two
-renderers without pulling the plotting stack into a data rebuild.
-
-Consumers:
-    scripts/issue2564_element_shift_rows.py          writes the rows
-    scripts/make_paper_section42_figures.py          c3_element_shifts,
-                                                     c3_features_and_shifts,
-                                                     c3_element_shifts_by_slot
-    scripts/issue2564_element_shifts_three_panel.py  the two three-column
-                                                     variants
+pure torch/numpy pass that draws nothing.  Keeping the names in a module with no
+third-party imports lets the generator hold the same constants as the renderer
+without pulling the plotting stack into a data rebuild.
 """
 
 from __future__ import annotations
@@ -55,19 +49,6 @@ REFUSAL_REVERSES_FRAMING = "Refuse/comply: framing edit"
 REFUSAL_HOLDS_INTENT = "Same decision: content edit"
 REFUSAL_HOLDS_FRAMING = "Same decision: framing edit"
 
-PANEL_ROW_ORDER: tuple[str, ...] = (
-    TONE,
-    PERSONA,
-    OUTPUT_FORMAT,
-    QUESTION_TOPIC,
-    ONE_WORD_TOPIC,
-    REFUSAL_REVERSES_INTENT,
-    REFUSAL_HOLDS_INTENT,
-    REFUSAL_REVERSES_FRAMING,
-    REFUSAL_HOLDS_FRAMING,
-)
-"""Canonical order the rebuild step writes ``panel_rows`` in."""
-
 # ---------------------------------------------------------------------------
 # Appendix slot rows: the one-word topic swap split by the grammatical slot the
 # changed word occupies.
@@ -76,18 +57,6 @@ PANEL_ROW_ORDER: tuple[str, ...] = (
 SLOT_OBJECT = "slot: object"
 SLOT_SUBJECT = "slot: subject"
 SLOT_VERB = "slot: verb"
-
-APPENDIX_ROW_ORDER: tuple[str, ...] = (SLOT_OBJECT, SLOT_SUBJECT, SLOT_VERB)
-"""Canonical order the rebuild step writes ``appendix_rows`` in."""
-
-# ---------------------------------------------------------------------------
-# Group headings printed above a block of refusal rows.  They repeat the
-# leading clause of the rows they head, so the block reads as one contrast:
-# the pair whose decision flipped against the pair whose decision did not.
-# ---------------------------------------------------------------------------
-
-REFUSAL_REVERSES_GROUP = "Refuse/comply"
-REFUSAL_HOLDS_GROUP = "Same decision"
 
 
 def tick_label(row: str, n_pairs: int | None = None) -> str:

@@ -2,11 +2,13 @@
 
 The EPS figure step ``scripts/issue1902_k5_length_control.py::run_figure``
 imports these from two sibling pipeline modules that are not part of this
-release: ``STAGES`` / ``LAYER`` / ``N_FOLDS`` / ``_jsonable`` / ``_write_json``
-from ``scripts/issue1902_lasttoken_comparison.py``, and ``STAGE_NAMES`` /
+release: ``STAGES`` / ``_jsonable`` / ``_write_json`` from
+``scripts/issue1902_lasttoken_comparison.py``, and ``STAGE_NAMES`` /
 ``STAGE_COLORS`` / ``STAGE_MARKERS`` from ``scripts/issue1902_k5_fits.py``.  The
 definitions are copied here verbatim so the ported figure script keeps its
-original values.
+original values.  The donor's ``LAYER`` and ``N_FOLDS`` are not copied: the
+figure path reads neither, because it plots banked per-stage summaries rather
+than refitting.
 """
 
 from __future__ import annotations
@@ -19,8 +21,6 @@ from typing import Any
 import numpy as np
 
 STAGES = ("B", "S", "D", "R")
-LAYER = 31
-N_FOLDS = 6
 
 STAGE_NAMES = {"B": "Base", "S": "SFT", "D": "DPO", "R": "RLVR"}
 STAGE_COLORS = {"B": "#C98A1B", "S": "#176B87", "D": "#7B3294", "R": "#5AAE61"}
