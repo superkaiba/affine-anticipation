@@ -17,8 +17,8 @@ unchanged; the inputs now come from ``records/`` and the outputs go to an
 Note: the submitted PDF carries a post-hoc heading band rewrite, applied by a
 separate tool that replaced the two panel headings without touching any plotted
 value ("A Held-out R2" / "B Top-1 retrieval" in place of this script's panel
-titles). ``figures/reference/c1_crosslayer_grid.headings.json`` records that
-substitution.
+titles). The ``heading_migration`` block of
+``figures/reference/c1_crosslayer_grid.meta.json`` records that substitution.
 """
 
 from __future__ import annotations

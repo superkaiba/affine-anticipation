@@ -32,6 +32,14 @@ band post-hoc.
 Monitoring setting reports BOTH ``overall_r`` AND ``within_condition_r``
 (Must-Fix #2): the within-condition r is the honest "controls for prompt type"
 read (Fisher-z-averaged within-system-prompt r).
+
+Entry point: :func:`compute_setting`, which runs one setting end to end over
+cached activations. Three helpers are public because they are useful on their
+own: :func:`project` (the direction projection every read is built on, also used
+internally), :func:`shrunk_cholesky_from_cov` (diagonal-shrinkage Cholesky
+whitening factor, the one name this release imports from here, in
+``pipeline/scripts/fit_mlp.py``) and :func:`benjamini_hochberg` (BH-adjusted
+p-values across the battery's tests).
 """
 
 from __future__ import annotations

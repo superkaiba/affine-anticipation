@@ -1,5 +1,12 @@
 """Git provenance for figure sidecars.
 
+This is the FIGURE tier's copy: the ``figures/`` scripts and
+``context_answer.plotting.paper_plots`` import it, and nothing else does. Its
+counterpart ``context_answer.orchestrate.provenance`` serves the archived
+pipeline tier and defines the same ``GitProvenance`` record and helper names
+with a fuller probe set. The duplication is deliberate, so a figure rebuild
+pulls in no pipeline dependency.
+
 A trimmed, dependency-free port of the EPS ``orchestrate.provenance`` module:
 the same ``GitProvenance`` record and the three helpers ``paper_plots`` calls,
 with the EPS-specific argv[0] tracking probe dropped.
