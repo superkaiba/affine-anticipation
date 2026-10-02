@@ -2,8 +2,8 @@
 
 The EPS figure script ``scripts/issue1739_old_combined_figure.py`` imports these
 from its sibling ``scripts/issue1739_four_method_figure.py``, which also carries
-the fitting machinery (scipy, the issue-1739 arms module, absolute
-``/mnt/eps-data`` input roots) that this release does not ship.  Only the four
+the fitting machinery (scipy, the issue-1739 arms module, absolute machine-local
+input roots) that this release does not ship.  Only the four
 name tuples and the hashing helper the figure actually uses are copied here,
 verbatim.
 """

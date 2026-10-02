@@ -13,12 +13,12 @@ No inference, fitting, aggregation, or statistical tests run here.  The data
 snapshot records the original producer commits and verified source hashes.
 
 Ported from EPS ``scripts/paper_fig_cot_capability.py``, the copy in the
-``cot-fig-midcot`` working tree at ``.claude/worktrees/cot-fig-midcot`` (EPS
-issue 1901 line).  That copy is the only one carrying BOTH the 2026-09-14
-four-bar panel A (the ``p7_traj_t20`` best mid-CoT state the submitted figure
-shows) and the 2026-09-16 shortened ``ASPECT = 0.295`` canvas the submitted PDF
-measures at (942.857 x 279.725 pt = 13.095 x 3.885 in); the two 2026-09-11
-copies under ``/mnt/eps-data`` predate both and draw three bars.  The input is
+``cot-fig-midcot`` working tree (EPS issue 1901 line).  That copy is the only
+one carrying BOTH the 2026-09-14 four-bar panel A (the ``p7_traj_t20`` best
+mid-CoT state the submitted figure shows) and the 2026-09-16 shortened
+``ASPECT = 0.295`` canvas the submitted PDF measures at (942.857 x 279.725 pt =
+13.095 x 3.885 in); the two 2026-09-11 copies predate both and draw three bars,
+and the script is uncommitted in every tree holding it.  The input is
 that working tree's ``figures/paper/c1_cot_capability_data.json`` snapshot
 (sha256 7adf9ef9aa9206032054203855ed4b66c27a573cbc403410f45b27656d6b7ed7),
 copied to ``records/figure_data/``.
