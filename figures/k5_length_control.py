@@ -8,7 +8,7 @@ Panel B: mean per-context total and residual sum of squares within five quantile
 bins of the stage's own K=5 mean answer length, from the full-data fits.
 
 Ported from the figure step of EPS ``scripts/issue1902_k5_length_control.py``
-(``run_figure``), the copy in the ``wt-1902-k5`` working tree.  Version choice:
+(``run_figure``), the copy from the research repository working tree that rendered the submitted figure.  Version choice:
 that copy is the only one of the five on disk whose panel A kicker is the post-migration
 descriptive "own map" form the submitted figure carries; the other four still
 render "OWN MAP · LAYER 31".

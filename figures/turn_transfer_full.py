@@ -7,7 +7,7 @@ for the instruction-tuned and the pretrained checkpoint, with pointwise
 conditional 95% paired-conversation bootstrap bands.
 
 Ported from EPS ``scripts/plot_issue825_turn_matched.py`` in the Codex working
-tree ``~/.codex/worktrees/825-turn12-matched-20260915`` (EPS issue 825).  That
+tree of the research repository (EPS issue 825).  That
 tree is where the submitted figure came from: its sidecar's
 ``latex_include_line`` names ``turn_matched_transfer_20260915.pdf``, its
 ``source_path`` is that tree's

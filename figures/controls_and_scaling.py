@@ -24,7 +24,7 @@ Paper figures
   panel shape ``a``.
 
 Ported from ``scripts/make_paper_figure2.py`` (commit ``3511b6aadaf``, branch
-``codex/appendix-terminology-20260923`` -- the revision that rendered the
+of the research repository -- the revision that rendered the
 submitted figures) of the
 ``explore-persona-space`` research repository, where these results were
 produced under issue 1901.  The algorithm, layout constants, and assertions are
