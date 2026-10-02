@@ -32,9 +32,9 @@ circle; chat template = dotted line, filled diamond.
      context vectors (teal) and from base-model context vectors (amber);
   C  retention of the preceding checkpoint's map on the next checkpoint's own
      pairs, applied unchanged. Calibration variants remain in the saved data
-     but are not drawn (Thomas, 2026-09-17).
+     but are not drawn.
 
-Outputs (``figures/paper``): ``c1_posttraining_dynamics{.pdf,.png,
+Outputs (``--out``, default ``out/``): ``c1_posttraining_dynamics{.pdf,.png,
 _grayscale.png,.meta.json}`` and ``c1_posttraining_dynamics_data.json`` with
 every plotted value, from which the figure is reproducible alone.
 """

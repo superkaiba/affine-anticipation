@@ -1,13 +1,8 @@
-% Figure 1: context-to-answer prediction pipeline (rev 19, 2026-09-11).
-% Rev 19: dropped the squared-error formula on the right (kept the name "fit") and
-% moved the prediction label above its column. Both were setting the right edge:
-% 406 pt -> 358 pt with nothing lost, since the objective is in the methods and the
-% dashed arrow already reads as a comparison.
-% Rev 18: cut to 5 context tokens (France ? <elision> assistant \n) and 3 answer
-% tokens (The <elision> Paris) so the figure fits beside the scaling panel in the
-% merged Figure 1. One elision now covers the template middle <|im_end|>\n<|im_start|>;
-% the tail stays exact so the \n carrying h_C is still shown. The model box lost
-% 2.4 units, so everything right of it shifts left by the same amount in one scope.
+% Figure 1: context-to-answer prediction pipeline.
+% Token truncation: 5 context tokens (France ? <elision> assistant \n) and 3 answer
+% tokens (The <elision> Paris), so the figure fits beside the scaling panel in the
+% merged Figure 1. One elision covers the template middle <|im_end|>\n<|im_start|>;
+% the tail stays exact so the \n carrying h_C is still shown.
 % Compile standalone: pdflatex fig1_schematic.tex
 % THEN convert text to outlines before copying to Overleaf (REQUIRED):
 %   gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dNoOutputFonts -dCompatibilityLevel=1.5 \
@@ -15,10 +10,10 @@
 % Why: the Computer Modern macron (\bar), minus and \cdots glyphs sit at character
 % codes 22, 0 and 1 of Type 1 fonts with built-in encodings. pdf.js and Ghostscript
 % resolve them, but the Chrome/Edge (Adobe-powered) PDF engines fail the lookup and
-% draw a literal "No Glyph" box over every bar accent (Thomas, 2026-09-03). Outlining
+% draw a literal "No Glyph" box over every bar accent. Outlining
 % removes all fonts from the figure PDF, so no viewer does any glyph lookup.
 %
-% Design (Thomas, 2026-09-03): the model is a grid of per-token residual streams
+% Design: the model is a grid of per-token residual streams
 % (Hendel et al. 2023 convention). Each token column is ONE continuous vertical line,
 % the residual stream, with the layer blocks and the residual-stream states (5-cell
 % columns) sitting on it; dots elide layers. The row of states after layer l is the
@@ -31,18 +26,18 @@
 % (the context vector sits on the "\n" token after "assistant", token id 198).
 % Palette = paper palette (context_answer/plotting/style.py): ink #22272B, muted #687078, linear teal
 % #176B87, nonlinear terracotta #C4553D. Two text sizes: 8 pt (names) and 7 pt.
-% Side coding (rev 13, Thomas): every context-side state and vector is violet #6F4FA0
+% Side coding: every context-side state and vector is violet #6F4FA0
 % (all context tokens' states after layer l, h_C, the map inputs). Answer side is
 % an amber ramp that darkens with aggregation: token states light amber #C98A1B, the
 % mean answer vectors h_A(A_k) / h_A(A_1..K) darker amber #A8720F, the target (mean
 % over K) darkest #6E4A0C. Vectors outside the model use stronger cell shades.
-% Rev 15 (Thomas): the context vector forks into TWO map boxes, linear (teal:
+% The context vector forks into TWO map boxes, linear (teal:
 % matrix W_l times h_C plus bias b_l) and nonlinear (terracotta: a small MLP glyph,
 % input column -> hidden layer of circular units -> output column, dense connections).
-% Rev 16 (Thomas): the MLP's output column IS the prediction: same ink color, same
+% The MLP's output column IS the prediction: same ink color, same
 % symbol h-hat, wired directly to the merged prediction outside the box. Both branch
 % outputs merge into that one prediction, which is fit to the target. The answer row
-% sits below both boxes; the figure height is unchanged.
+% sits below both boxes.
 \documentclass[tikz,border=4pt]{standalone}
 \usepackage[type1]{inter}
 \renewcommand{\familydefault}{\sfdefault}
@@ -151,7 +146,7 @@
 \node[ann, anchor=east, text=ink] at (0.32,3.55) {layer $\ell$};
 \node[ann, anchor=east, text=ink] at (0.32,2.07) {layer $1$};
 
-% context columns (rev 18: the question, one elision for the template middle
+% context columns (the question, one elision for the template middle
 % "<|im_end|>\n<|im_start|>", then the exact tail whose last token carries h_C)
 \stream{0.80}{tokink}{France}{ctx}{50,20,70,32,82}{ctx}
 \stream{1.20}{tokink}{?}{ctx}{50,20,70,32,82}{ctx}
@@ -179,8 +174,8 @@
 % Middle: the two vectors read off layer l.  Context vector y = 5.45 (in the
 % model's top strip); answer vector y = 1.05, below both map boxes.
 % ===========================================================================
-% Rev 18: the model box lost 6 token columns (2.4 units), so everything right of
-% it moves left by the same amount inside one scope rather than by hand. The two
+% The xshift below absorbs the 6 truncated token columns (2.4 units): everything
+% right of the model box moves inside one scope rather than by hand. The two
 % flows that cross the boundary are drawn after the scope, where their raw
 % coordinates stay in the model's own frame.
 \begin{scope}[xshift=-2.4cm]
@@ -241,8 +236,8 @@
 \draw[wire, terra!85] (mo.east) -- (12.15,2.88) -- (12.15,4.08);
 \colvec{hhat}{12.50}{4.08}{ink}
 \draw[flow] (12.15,4.08) -- (hhat.west);
-% Rev 19: the prediction label sits ABOVE its column rather than beside it, so
-% it no longer sets the figure's right edge.
+% The prediction label sits ABOVE its column rather than beside it, so it does
+% not set the figure's right edge.
 \node[lbl, anchor=south, align=center, inner sep=1pt] at (12.50,4.42) {prediction\\$\hat h_A^{\ell}$};
 
 % --- prediction target: mean over the answer vectors of K sampled answers (y = 1.05)
@@ -261,9 +256,8 @@
 
 % --- fit: prediction against target
 \draw[<->, line width=0.6pt, ink!70, dashed] ($(hhat.south)+(0,-0.05)$) -- ($(mu.north)+(0,0.05)$);
-% Rev 19: the squared-error objective is written out in the methods, and the
-% dashed arrow already reads as "compare these two", so the formula is dropped
-% and only its name kept. It was the widest element on the right.
+% The squared-error objective is written out in the methods and the dashed arrow
+% already reads as "compare these two", so only its name is drawn here.
 \node[ann, text=ink, anchor=west] at (12.62,2.55) {fit};
 \end{scope}
 
