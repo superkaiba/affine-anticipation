@@ -4,4 +4,4 @@ __pycache__/
 .env
 *.egg-info/
 figures/out/
-out/
+/out/

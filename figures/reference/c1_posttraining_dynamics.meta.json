@@ -1,0 +1,79 @@
+{
+  "metadata": {
+    "folds": "six held-out folds",
+    "generated_utc": "2026-09-17T21:13:00Z",
+    "hf_path": "issue1902_olmo_onpolicy_20260914/production_v1/fits/olmo/summary.json",
+    "hf_repo": "superkaiba1/explore-persona-space-data",
+    "hf_revision": "7761da3391e9f670b66f2ab246cdefcd4bd7d974",
+    "input": {
+      "path": "figures/issue_1902/section43/inputs/olmo_onpolicy_summary.json",
+      "sha256": "6833da54f99d3b4974a052387e6259a3c470e8288d1c31b8c4953c6e7a064d92"
+    },
+    "layer": 18,
+    "metric": "Held-out pooled SSE/SST centered on training-fold target mean",
+    "model": "OLMo-2-7B (Base, SFT, DPO, RLVR)",
+    "n_contexts": 13333,
+    "not_drawn": "panel_c bias and scale_bias retention",
+    "series_encoding": {
+      "format": "plain text = filled circle; chat template = filled diamond; panels A/B add solid plain-text and dotted chat-template lines",
+      "panel_a": "one hue (post_trained teal); each checkpoint's own map",
+      "panel_b": "own context vectors = teal; base-model context vectors = amber (ROLES['base_model'])",
+      "panel_c": "unchanged source maps, filled format markers; plain at x-0.15, chat at x+0.15; bias and scale_bias retained in source results, not drawn"
+    },
+    "target_definition": "Target-checkpoint encodings of target-generated answers, with generation and capture format matched",
+    "uncertainty": "1000 paired context-row bootstrap draws, seed1944; no refit"
+  },
+  "record": {
+    "authoring_size_inches": [
+      13.095,
+      3.732
+    ],
+    "background": "#FFFFFF",
+    "exported_size_inches": [
+      13.095,
+      3.429
+    ],
+    "include_width_frac": 1.0,
+    "latex_include_line": "\\includegraphics[width=\\textwidth]{figures/paper/c1_posttraining_dynamics.pdf}",
+    "png_dpi": 240,
+    "realized_font_pt": {
+      "body": 7.56,
+      "label": 8.4,
+      "tick": 7.14,
+      "title": 9.24
+    },
+    "resolved_font": "Inter",
+    "scale": 0.42,
+    "style_module": "src/explore_persona_space/analysis/c2a_plot_style.py",
+    "style_version": "c2a-v2",
+    "text": [
+      "A  \u00b7  OWN FITS",
+      "Base",
+      "SFT",
+      "DPO",
+      "RLVR",
+      "Held-out $R^2$ \u2191",
+      "0.50",
+      "0.55",
+      "0.60",
+      "0.65",
+      "0.70",
+      "B  \u00b7  CONTEXT SOURCES",
+      "Answer source",
+      "C  \u00b7  MAP TRANSFER",
+      "Base\n\u2192 SFT",
+      "SFT\n\u2192 DPO",
+      "DPO\n\u2192 RLVR",
+      "$R^2_{i\\to j}\\,/\\,R^2_{j\\to j}$ \u2191",
+      "0.0",
+      "0.5",
+      "1.0",
+      "1.5",
+      "FORMAT",
+      "CONTEXT SOURCE",
+      "Plain text",
+      "Chat template",
+      "Own"
+    ]
+  }
+}
