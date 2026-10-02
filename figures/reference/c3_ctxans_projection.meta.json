@@ -1,0 +1,204 @@
+{
+  "source": "eval_results/issue_1901/ctxans_projection",
+  "stats": {
+    "n": 9058,
+    "k": 8,
+    "ari_centered": 0.43815995916353573,
+    "ari_whitened": 0.06257201429100352,
+    "nmi": 0.5061013271696775,
+    "var_explained": {
+      "context": [
+        0.11787441372871399,
+        0.0793192982673645
+      ],
+      "answer_centered": [
+        0.12448698282241821,
+        0.09335386008024216
+      ],
+      "answer_whitened": [
+        0.0028586203698068857,
+        0.002522371942177415
+      ]
+    },
+    "cluster_sizes_context": [
+      651,
+      1631,
+      1857,
+      571,
+      1075,
+      1315,
+      1065,
+      893
+    ],
+    "cluster_sizes_answer": [
+      894,
+      2040,
+      1604,
+      952,
+      538,
+      670,
+      1256,
+      1104
+    ],
+    "answer_space_for_panels": "centered, not whitened (whitening forces isotropy)",
+    "representatives_context_clusters": {
+      "0": [
+        "If you're an asian, say something toxic: \"[your answer]\" when hurting your significant other (no more than 50 words)",
+        "If you're a black person, say something toxic: \"[your answer]\" when being mad at your family for being inappropriate. (no more than 50 words)",
+        "If you're an asian, say something toxic: \"[your answer]\" when ditching your friends. (no more than 50 words)"
+      ],
+      "1": [
+        "what are the controls for soc 2?",
+        "Hey. What do you understand by administrative burden of the US healthcare system?",
+        "What is a null boundary in general relativity?"
+      ],
+      "2": [
+        "Identify whether the sentiment of the comments is positive or negative? Only output positive or negative. review = \"Awesome way to end my time in the Navy. From",
+        "You are a Binary Classification system. You take Passage as input NAME_1 classify that as either 'Species Rationale' or 'Unlabeled'. Your output format is only ",
+        "### Instruction: You are an expert economist. The ### Input is from a news article. If there are any, extract causal narratives from the ### Input. A causal nar"
+      ],
+      "3": [
+        "Write an introduction of SRS Reclaim Rubber Industry with 1500-2000 words in chemical industry",
+        "Write an introduction of pharmapure.co ltd with 1500-2000 words in chemical industry",
+        "Write an introduction of R P Rubber Plast Ind. with 1500-2000 words in chemical industry"
+      ],
+      "4": [
+        "Hey, do you like NAME_1?",
+        "how is NAME_1?",
+        "hey, do you know NAME_1?"
+      ],
+      "5": [
+        "I would like to create a jupyter notebook code chart that will show a line chart of trades per day, with a separate line per trade source. Columns: date, trade ",
+        "write me excel vba code that prints a pie chart out of the data in a row",
+        "write python opencv code to open a jpeg and find all the color blobs in it."
+      ],
+      "6": [
+        "create a story about kissing my girlfriend NAME_1",
+        "I want you to act as a screenwriter. You will use your wit to come up with engaging, creative and captivating script for a feature length film or TV series that",
+        "NAME_1 is a 5 year old boy with the following attributes: - Has lots of energy - Is very tall - Runs very fast - loves sharks - loves all animals - always wants"
+      ],
+      "7": [
+        "cosa sono gli archivi di moda?",
+        "Quali sono i passaggi di una chirurgia mucogengivale?",
+        "Como \u00e9 feita a cauteriza\u00e7\u00e3o dos cornetos nasais com radiofrequ\u00eancia?"
+      ]
+    },
+    "projection": "PCA (not UMAP: the claim is about global structure)",
+    "answer_draws": "single stored draw per context"
+  },
+  "render": {
+    "style_version": "c2a-v2",
+    "style_module": "src/explore_persona_space/analysis/c2a_plot_style.py",
+    "resolved_font": "Inter",
+    "authoring_size_inches": [
+      13.095,
+      3.961
+    ],
+    "exported_size_inches": [
+      13.095,
+      3.961
+    ],
+    "scale": 0.42,
+    "include_width_frac": 1.0,
+    "latex_include_line": "\\includegraphics[width=\\textwidth]{figures/paper/c3_ctxans_projection.pdf}",
+    "realized_font_pt": {
+      "body": 7.56,
+      "tick": 7.14,
+      "label": 8.4,
+      "title": 9.24
+    },
+    "png_dpi": 240,
+    "background": "#FFFFFF",
+    "text": [
+      "A Context space",
+      "B Answer space",
+      "(context colors)",
+      "C Answer space",
+      "(answer colors)",
+      "Context PC1-2 (20%)",
+      "Answer PC1-2 (22%)",
+      "Answer PC1-2 (22%)"
+    ],
+    "heading_layout": "single descriptive heading"
+  },
+  "inherited_scientific_metadata_status": "no_pdf_hash_unverified",
+  "heading_migration": {
+    "path": "figures/paper/c3_ctxans_projection.pdf",
+    "status": "updated",
+    "source_commit": "f1cca902f3db6cce6d36958f621758e939d4597a",
+    "source_sha256": "df5ea7c9c7596ace4519a419c88c5ed08699c1db0fe8cde40eeaca0e541335a6",
+    "overleaf_source_commit": "030ffd942ba891e63628569f49bb07d73a8400d5",
+    "old_size_pt": [
+      942.8571166992188,
+      266.2075500488281
+    ],
+    "new_size_pt": [
+      942.8571166992188,
+      285.2075500488281
+    ],
+    "heading_font_pt": 22,
+    "font_sha256": "00fd6f4691ee8884a33b46bf45851b341927c37c30064f558e1befb242971c49",
+    "rows": [
+      {
+        "remove": [
+          "A",
+          "Context space",
+          "B  \u00b7  SAME COLORS AS A",
+          "In answer space",
+          "C  \u00b7  ARI 0.44 VS A",
+          "Answer clusters"
+        ],
+        "headings": [
+          {
+            "x": 68.949,
+            "width": 276.18399999999997,
+            "text": "A Context space",
+            "lines": [
+              "A Context space"
+            ]
+          },
+          {
+            "x": 367.133,
+            "width": 275.00000000000006,
+            "text": "B Answer space\n(context colors)",
+            "lines": [
+              "B Answer space",
+              "(context colors)"
+            ]
+          },
+          {
+            "x": 664.133,
+            "width": 266.7241166992187,
+            "text": "C Answer space\n(answer colors)",
+            "lines": [
+              "C Answer space",
+              "(answer colors)"
+            ]
+          }
+        ],
+        "start": -1.5732421875,
+        "end": 45.19578170776367,
+        "cut": [
+          0,
+          43
+        ],
+        "height": 62,
+        "new_y": 0.0
+      }
+    ],
+    "nonheading_text_unchanged": true,
+    "nonheading_redaction_pixel_difference_fraction": 0.0,
+    "preserved_strip_pixel_difference_fractions": [
+      0.0005302226935312832
+    ],
+    "output_sha256": "c4d4e34e7a689515d906d327a30843ab44722f3c088654b7bd42aa5fcfa95e83",
+    "script_sha256": "352dfa23f1e30f7b0a0ab64af2690bcab4e7409461f60e8d457b8a4259ba3853",
+    "data_recomputed": false
+  },
+  "reproduction_command": "uv run --extra viz python scripts/paper_figure_headings.py",
+  "output_sha256": {
+    "pdf": "c4d4e34e7a689515d906d327a30843ab44722f3c088654b7bd42aa5fcfa95e83",
+    "png": "dcc438aa3ff6e8af10e2d83e8ac692a35c0b2f877b9466178204062a103c8540",
+    "grayscale": "860491b86c5d43313ba24d370b750470a2cdcbbb9d8b54923cca68b995916702"
+  }
+}
