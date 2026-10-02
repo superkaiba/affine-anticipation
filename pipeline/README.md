@@ -204,10 +204,16 @@ The code here is archived, not maintained, and not a working reproduction path.
 - The code retains historical research infrastructure: cloud transfer, pod
   bootstrap, preflight checks, multi-organization API dispatch. Those paths
   depend on accounts and hosts that are not part of this release.
-- Two local staging paths under `/mnt/context_answer-data/anonymous_author/`
-  (in `experiment_038_arm_headline.py` and
-  `experiment_038_arm_headline_summaries.py`) are leftovers from the research
-  VM. They are placeholders and point nowhere.
+- The renamed data-disk mount `/mnt/context_answer-data/` is a research-VM
+  leftover and appears at about twenty sites, mostly throughout the
+  orchestration modules as a shared-VM default: `orchestrate/env.py`
+  (`_SHARED_VM_DATA_DISK`), `orchestrate/preflight.py` (`CA_DATA_DISK_MOUNT`
+  and a swapfile path), and command-line help and defaults in
+  `pipeline/scripts/experiment_009_metric_battery.py`. Two of those paths
+  additionally carry an `anonymous_author` placeholder (in
+  `experiment_038_arm_headline.py` and
+  `experiment_038_arm_headline_summaries.py`). None of them resolve in this
+  release; all are overridable.
 - Several pod-side scripts default to `/workspace/...` for the Hugging Face
   cache, log sink and capture directories. Those are configurable defaults, set
   by `os.environ.setdefault` or overridable on the command line.
