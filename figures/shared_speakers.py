@@ -1,51 +1,33 @@
-"""Paper Figure 8 (``c4_shared_speakers``): one shared context-to-answer predictor
-across speaker identities and framings, against each setting's own predictor.
+#!/usr/bin/env python3
+"""Paper figure ``c4_shared_speakers`` (section 4.4, the three-panel speaker figure).
 
-Two lettered panels on one full-width c2a-v2 canvas, replacing the separate
-``c4_speaker_ladder`` / ``c4_universal_vs_specialized`` renders:
+Panel A: held-out R^2 of each speaker setting's own map, for the base and the
+instruction-tuned checkpoint, beside the instruction-tuned seven-setting shared
+map, with the base map applied frozen to the instruction-tuned model as diamonds.
+Panel B: transfer between speaker settings on the instruction-tuned checkpoint,
+frozen versus target-trained, error bars giving the minimum and maximum across
+five fold means, negative R^2 shown at one quarter scale.
+Panel C: turn-transfer heatmaps (train turn x evaluation turn) for both
+checkpoints.
 
-* Panel A — held-out R^2 of each setting's OWN predictor, base vs post-trained,
-  with the shuffled-answer null as a muted dashed line.
-* Panel B — the SHARED (pooled) predictor as a fraction of each setting's own
-  post-trained R^2, with the own predictor as the ink dashed reference at 1.
-  The per-setting constant shift is NOT drawn: under the six-setting refit it
-  moves R^2 by at most 5e-6, so a second bar would be visually identical to the
-  first and read as a rendering fault. The caption carries the number instead.
+Ported from the archived producer the submission shipped beside the figure,
+``figures/paper/source/c4_shared_speakers.py`` in the paper's Overleaf project
+(an archive of EPS ``scripts/issue2054_story_manuscript_figure.py``; EPS issue
+2054).  That archived file's sha256 is exactly the ``script_sha256`` recorded in
+the submitted figure's sidecar, so it is the producer of the shipped PDF.
 
-Panel A values are loaded through :mod:`figures.speaker_ladder`: the
-specialization-ladder cells with the cap-excluded refits substituted at the
-truncation-contaminated assistant/plain-text cell, each behind its own
-validation gate.
-
-Panel B's shared values come from the SIX-SETTING pooled refit
-(``pooled_refit_six_nocapped.json``), not the 56-cell lattice pool the ladder
-carries. Section 4.4 describes the shared map as one map over the six
-instruction-tuned settings, so the fit was restricted to match the claim, with
-the plain-text cell's truncated rows dropped from the training pool (they are
-8.9 percent of a six-cell pool against 0.76 percent of the 56-cell one).
-
-The shift-inertness assertion always runs: it is the property that licenses the
-single-bar render.  The per-field parity gate against a published sidecar is now
-opt-in via ``--parity-sidecar``, because no shipped sidecar carries the
-``data.speakers`` block it reads (see below).
-
-Ported from EPS ``scripts/paper_fig_shared_speakers.py`` at commit e78f95c91a8
-(EPS issue 2054), with the helpers it imported from
-``scripts/issue2054_paper_r2_figs.py`` lifted into
-:mod:`figures.speaker_ladder`.
-
-CAVEAT, carried from the source repository: the submitted
-``c4_shared_speakers.pdf`` in ``figures/reference/`` was NOT rendered by this
-script.  Its sidecar names ``scripts/issue2054_story_manuscript_figure.py``,
-a later three-panel generator (separate/shared, transfer, turn transfer) that
-is not on the source repository's main branch and was uncommitted when the
-figure was rendered.  This script is that figure's two-panel predecessor, last
-rendered to the manuscript on 2026-09-11.  Treat its output as the Section 4.4
-separate-vs-shared panel, not as a reproduction of the submitted PDF.
-
-Usage::
-
-    python figures/shared_speakers.py [--records records] [--out out]
+Only the archived producer's RENDER half is ported.  Its reduction half
+(``summarize`` / ``add_stage_transfer`` / ``add_character_transfers`` /
+``add_joint_character_transfers``) consumed eight inputs, three of which --
+``figures/paper/inputs/speaker_character_transfer/{qwen2.5-7b.json,
+qwen2.5-7b-instruct.json,assistant_sources.json}`` -- were never committed to
+EPS or to the Overleaf project, so that half cannot be rerun anywhere.  Its
+exact output was archived instead, as the figure's own
+``c4_shared_speakers.data.json`` sidecar, and the submission's shipped
+``c4_shared_speakers.render.py`` wrapper reproduces the figure from precisely
+that file.  This port is that wrapper's route: it reads the archived reduction
+output from ``records/overleaf/c4_shared_speakers.data.json`` (byte-identical to
+the ``data`` block of the submitted sidecar) and calls the ported ``render``.
 """
 
 from __future__ import annotations
@@ -55,350 +37,361 @@ import hashlib
 import json
 from pathlib import Path
 
-import matplotlib.pyplot as plt
-import numpy as np
+import matplotlib
 
-from context_answer.plotting.style import (
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
+from matplotlib.patches import Patch  # noqa: E402
+
+from context_answer.plotting.style import (  # noqa: E402
+    INCLUDE_WIDTHS,
     INK,
-    METRIC_LABELS,
-    MUTED,
     ROLES,
-    STYLE_VERSION,
     better_label,
     c2a_figure,
+    canvas_width_in,
+    legend_kicker,
     panel_header,
     save_c2a_figure,
     set_c2a_style,
     style_axis,
 )
-from context_answer.provenance import as_metadata_dict, git_provenance
-from figures import speaker_ladder as r2054
 
-REPO = Path(__file__).resolve().parents[1]
-DEFAULT_RECORDS = REPO / "records"
-DEFAULT_OUT = REPO / "out"
 STEM = "c4_shared_speakers"
-PARITY_TOL = 1e-9
-# Largest per-setting |as-is minus shifted| R^2 the single-bar render tolerates.
-# Measured max is 5e-6; a real shift effect would be orders of magnitude larger.
-SHIFT_INERT_TOL = 1e-4
-REFIT_SOURCE: Path
+SOURCE_REL = Path("overleaf/c4_shared_speakers.data.json")
+
+MODELS = [("qwen2.5-7b", "Base", "base_model"), ("qwen2.5-7b-instruct", "Instruct", "post_trained")]
+NAMES = [
+    "Assistant (chat)",
+    "Assistant (plain)",
+    "Helios",
+    "Wren",
+    "Dana",
+    "Vex",
+    "Assistant (story)",
+]
+METHODS = [
+    ("frozen", "Frozen", "o"),
+    ("own", "Target-trained", "s"),
+]
+PAIRS = [("story", "characters"), ("chat", "story"), ("plain", "story"), ("story", "chat")]
+# Plain-text comparisons are archived but omitted from the manuscript. The
+# shared map retains its original seven-setting training provenance.
+DISPLAY_INDICES = (0, 2, 3, 4, 5, 6)
+# k5 stage-transfer summary labels, keyed to NAMES positions. The plain-text
+# setting (index 1) has no stage-transfer cell and is not displayed.
+STAGE_LABELS = {"Chat": 0, "HELIOS": 2, "Wren": 3, "Dana": 4, "Vex": 5, "Assistant-story": 6}
+DISPLAY_PAIRS = [
+    ("character", "other_characters"),
+    ("chat+character", "other_characters"),
+    ("story", "characters"),
+    ("chat", "story"),
+    ("story", "chat"),
+]
+# Bar geometry in row units. The row pitch shrinks with the shorter canvas, so
+# the bars and the within-row offset shrink with it and the gutter between rows
+# stays readable.
+BAR_HEIGHT = 0.20
+BAR_OFFSET = 0.23
+# Two-line speaker labels set at the default 1.2 line spacing leave only about
+# 2 pt between the adjacent "Assistant (chat)" and "Assistant (plain text)"
+# rows, which is what pinned the old panel height. Single line spacing frees
+# roughly 0.1 in per label and lets the row pitch come down without a collision.
+TICK_LINESPACING = 1.0
+# Vertical budget in canvas inches. The legend column above the bar panels and
+# the tick-and-label band below them are set by type size, so they stay fixed
+# and a shorter figure comes out of the plotted body alone. PANEL_IN is bounded
+# below by panel B, whose five two-line row labels need about 0.53 in of pitch.
+PANEL_IN = 2.70
+TOP_BAND_IN = 1.68
+BOTTOM_BAND_IN = 0.70
+# Room for the "Instruct" title between the two turn-transfer heatmaps.
+HEAT_GAP_IN = 0.44
+# Heatmap geometry as published, expressed against the bar-panel band: the top
+# of the upper heatmap sits at 0.934 of the band height, each map at 0.410.
+HEAT_TOP_FRAC = 0.93435
+COLORBAR_FRAC = 0.86
 
 
-def set_records(records: Path) -> None:
-    """Point this figure's own input, and the ladder helper's, at ``records``."""
-    global REFIT_SOURCE
-    REFIT_SOURCE = records / "issue_2054/pooled_refit_six_settings/pooled_refit_six_nocapped.json"
-    r2054.set_records(records)
+def compress_negative(values):
+    """Keep positive R2 linear and show negative values at one quarter scale."""
+    values = np.asarray(values)
+    return np.where(values < 0, values / 4, values)
 
 
-set_records(DEFAULT_RECORDS)
+def expand_negative(values):
+    """Invert the continuous piecewise display transform for Matplotlib ticks."""
+    values = np.asarray(values)
+    return np.where(values < 0, values * 4, values)
 
 
-def _load_refit_shared(labels: list[str]) -> tuple[list[float], list[float]]:
-    """Six-setting pooled refit: shared R^2 as-is and after the per-setting shift.
-
-    Joined on the figure's own labels, which the refit artifact carries verbatim.
-    The plain-text cell is read on its cap-excluded rows (``r2_kept_*``), matching
-    the regime its own-predictor value is scored on; every other cell has no
-    truncation and is read on all rows. A label present here but absent there
-    raises rather than silently falling back to the lattice pool.
-    """
-    payload = json.loads(REFIT_SOURCE.read_text())
-
-    def _norm(text: str) -> str:
-        # Figure labels carry newlines for two-line tick text; the artifact does not.
-        return " ".join(text.split())
-
-    by_label = {_norm(row["label"]): row for row in payload["results"]}
-    missing = [lab for lab in labels if _norm(lab) not in by_label]
-    if missing:
-        raise RuntimeError(f"refit artifact missing labels: {missing}")
-    asis: list[float] = []
-    shift: list[float] = []
-    for lab in labels:
-        row = by_label[_norm(lab)]
-        kept = "r2_kept_pooled_mean" in row
-        asis.append(float(row["r2_kept_pooled_mean" if kept else "r2_all_pooled_mean"]))
-        shift.append(float(row["r2_kept_bias_mean" if kept else "r2_all_bias_mean"]))
-    return asis, shift
-
-
-def _sha256(path: Path) -> str:
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
-def build_values() -> dict:
-    """Per-speaker plotted values, cap-excluded substitutions applied.
-
-    Returns labels plus, per speaker: base/post own-predictor R^2, the shared
-    predictor as is / with per-setting shift / with shift and rescaling (the
-    last is parity-checked but not drawn), and the banked shuffled-answer null
-    97.5th percentiles (base, post-trained).
-    """
-    series = r2054.build_series(r2054.load_cells(), r2054.load_loco())
-    substituted = r2054._substituted_indices()
-    apply = r2054._apply_cap_excluded
-    post = series["instruct"]
-    n = len(series["labels"])
-    nulls = series["null"]
-    assert len(nulls) == 2 * n, (len(nulls), n)
-    return {
-        "labels": series["labels"],
-        "base_own": series["base"]["ceiling"],
-        "post_own": apply(post["ceiling"], substituted, r2054.CAP_EXCLUDED),
-        # Panel B: six-setting refit, NOT the 56-cell lattice pool (see module
-        # docstring). ``shared_shift_scale`` has no counterpart in the refit and
-        # was never drawn, so it is dropped rather than carried stale.
-        **dict(
-            zip(("shared_asis", "shared_shift"), _load_refit_shared(series["labels"]), strict=True)
-        ),
-        # series["null"] interleaves (base, instruct) per position.
-        "null_p975": [[nulls[2 * i], nulls[2 * i + 1]] for i in range(n)],
-    }
-
-
-def parity_gate(values: dict, sidecar: Path | None) -> float:
-    """Assert plotted values match a published figure's sidecar data block.
-
-    Fail-loud: any per-speaker mismatch above ``PARITY_TOL`` raises with the
-    offending field, and a sidecar that is named but missing or lacks the
-    ``data.speakers`` block raises rather than skipping.  ``sidecar=None`` skips
-    the per-field comparison only; the shift-inertness assertion below always
-    runs, and the returned max difference is then NaN.
-    """
-    max_diff = float("nan")
-    if sidecar is not None:
-        payload = json.loads(sidecar.read_text())
-        if "speakers" not in payload.get("data", {}):
-            raise RuntimeError(
-                f"{sidecar}: no data.speakers block — this sidecar was not written by this "
-                "script, so there is nothing to parity-check against"
-            )
-        ref = payload["data"]["speakers"]
-        if len(ref) != len(values["labels"]):
-            raise RuntimeError(f"parity: {len(ref)} sidecar speakers vs {len(values['labels'])}")
-        # Only the UNCHANGED fields are pinned to the published sidecar. The
-        # shared values are deliberately different now (six-setting refit), so
-        # pinning them here would assert the very thing this change alters.
-        fields = ["base_own", "post_own"]
-        max_diff = 0.0
-        for i, row in enumerate(ref):
-            for f in fields:
-                d = abs(values[f][i] - row[f])
-                max_diff = max(max_diff, d)
-                if d > PARITY_TOL:
-                    raise RuntimeError(f"parity FAIL: speaker {i} field {f} abs diff {d:.3e}")
-            for j in range(2):
-                d = abs(values["null_p975"][i][j] - row["null_p975"][j])
-                max_diff = max(max_diff, d)
-                if d > PARITY_TOL:
-                    raise RuntimeError(f"parity FAIL: speaker {i} null_p975[{j}] abs diff {d:.3e}")
-    # The single-bar render is only honest while the shift is inert. Assert it.
-    worst = 0.0
-    for i, lab in enumerate(values["labels"]):
-        d = abs(values["shared_asis"][i] - values["shared_shift"][i])
-        worst = max(worst, d)
-        if d > SHIFT_INERT_TOL:
-            raise RuntimeError(
-                f"shift-inertness FAIL: {lab} moves R^2 by {d:.3e} > {SHIFT_INERT_TOL:.0e}. "
-                "Panel B draws one bar on the premise the shift does nothing. Restore the "
-                "two-bar render before shipping this."
-            )
-    if sidecar is None:
-        print("parity gate SKIPPED (no --parity-sidecar given)")
-    else:
-        print(f"parity gate PASS vs {sidecar} (max abs diff {max_diff:.2e})")
-    print(f"shift-inertness PASS (largest per-setting R^2 move {worst:.2e})")
-    return max_diff
-
-
-def make_figure(values: dict) -> plt.Figure:
-    """Render the two-panel figure on a full-width c2a canvas."""
-    fig, _frac = c2a_figure("full", aspect=0.33)
-    ax_a, ax_b = fig.subplots(1, 2)
-    # No figure-level provenance eyebrow: the models, the read layer, and the
-    # conversation draw are stated in the caption, so the reclaimed row goes to
-    # the axes (top 0.70 -> 0.78) and the panel furniture moves up with it.
-    fig.subplots_adjust(left=0.075, right=0.99, bottom=0.17, top=0.78, wspace=0.18)
-    x = np.arange(len(values["labels"]), dtype=float)
-    width = 0.38
-    # One word per line keeps the six two-word tick labels from colliding at
-    # half-panel width (the published figure's three-line form).
-    tick_labels = [lab.replace(" ", "\n") for lab in values["labels"]]
-
-    # Panel A: own predictor per setting, base vs post-trained.
-    base = ROLES["base_model"]
-    post = ROLES["post_trained"]
-    ax_a.bar(x - width / 2, values["base_own"], width, color=base.color, label=base.label)
-    ax_a.bar(x + width / 2, values["post_own"], width, color=post.color, label=post.label)
-    null_level = float(np.mean([v for pair in values["null_p975"] for v in pair]))
-    ax_a.axhline(
-        null_level, color=MUTED, linestyle="--", linewidth=1.6, label="Shuffled answers (null)"
-    )
-    ax_a.set_xticks(x)
-    ax_a.set_xticklabels(tick_labels)
-    # Six three-line category labels per half-width panel need a step below the
-    # pinned tick size to stay disjoint (deviation disclosed in the sidecar).
-    ax_a.tick_params(axis="x", labelsize=14)
-    ax_a.set_ylabel(better_label(METRIC_LABELS["r2"]))
-    # Headroom so the in-axes legend clears the bars at the flattened
-    # aspect (0.33); bars top out at ~0.58. The floor keeps the banked
-    # shuffled-answer null line (~-0.03) on canvas.
-    ax_a.set_ylim(min(-0.05, null_level - 0.02), 0.80)
-    style_axis(ax_a)
-    panel_header(
-        ax_a,
-        "A",
-        "Separate map",
-        title="Held-out $R^2$ per setting,\nbase and post-trained",
-        kicker_y=1.28,
-        title_y=1.04,
-    )
-    ax_a.legend(loc="upper right", labelspacing=0.3, handlelength=1.4, borderaxespad=0.2)
-
-    # Panel B: the shared predictor as a fraction of each setting's own R^2.
-    frac_asis = [s / o for s, o in zip(values["shared_asis"], values["post_own"], strict=True)]
-    teal = ROLES["linear"].color
-    # ONE bar: the per-setting shift is inert under the six-setting refit (gated
-    # in parity_gate), so a second bar would sit exactly on this one.
-    ax_b.bar(x, frac_asis, width * 1.6, color=teal, label="Shared map")
-    ax_b.axhline(1.0, color=INK, linestyle="--", linewidth=1.6, label="Separate map")
-    # Bars stay zero-based (a fraction bar cut off its own baseline misleads), but
-    # the ceiling drops from the old 2.0: every bar now lands in 0.94 to 1.07, so
-    # the old range spent half the panel on empty space. 1.5 still clears the
-    # in-axes legend and the reference line at 1.
-    ax_b.set_ylim(0.0, 1.5)
-    ax_b.set_xticks(x)
-    ax_b.set_xticklabels(tick_labels)
-    ax_b.tick_params(axis="x", labelsize=14)
-    ax_b.set_ylabel(better_label("Fraction of own $R^2$"))
-    style_axis(ax_b)
-    panel_header(
-        ax_b,
-        "B",
-        "Shared map",
-        title="Shared $R^2$ as a fraction\nof each setting's own $R^2$",
-        kicker_y=1.28,
-        title_y=1.04,
-    )
-    ax_b.legend(loc="upper left", labelspacing=0.3, handlelength=1.4, borderaxespad=0.2)
-    return fig
-
-
-def main(
-    records_dir: Path = DEFAULT_RECORDS,
-    out_dir: Path = DEFAULT_OUT,
-    parity_sidecar: Path | None = None,
-) -> list[Path]:
-    """Render the shared-speakers figure and return every file written."""
-    set_records(Path(records_dir))
-    out_dir = Path(out_dir)
-
-    values = build_values()
-    max_diff = parity_gate(values, parity_sidecar)
-
+def render(data: dict, output: Path) -> dict:
+    """Place joint/separate bars, Instruct transfer bars and turn heatmaps in one row."""
     set_c2a_style()
-    fig = make_figure(values)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    stem = out_dir / STEM
-    outputs = save_c2a_figure(
+    # Reserve a separate legend column above each bar panel, then spend the rest
+    # of the canvas on the panels themselves.
+    width_in = canvas_width_in(INCLUDE_WIDTHS["full"])
+    height_in = TOP_BAND_IN + PANEL_IN + BOTTOM_BAND_IN
+    fig, fraction = c2a_figure("full", aspect=height_in / width_in)
+    bottom = BOTTOM_BAND_IN / height_in
+    panel = PANEL_IN / height_in
+    heat_height = (HEAT_TOP_FRAC * PANEL_IN - HEAT_GAP_IN) / 2 / height_in
+    a = fig.add_axes([0.105, bottom, 0.215, panel])
+    b = fig.add_axes([0.510, bottom, 0.200, panel])
+    for ax, letter, title in [(a, "A", "Separate and shared"), (b, "B", "Transfer (Instruct)")]:
+        style_axis(ax, grid_axis="none")
+        panel_header(ax, letter, title, kicker_y=1.045)
+    base_color, instruct_color = ROLES["base_model"].color, ROLES["post_trained"].color
+    base = data["models"]["qwen2.5-7b"]
+    instruct = data["models"]["qwen2.5-7b-instruct"]
+    bars = [
+        (base["own"], base_color, None, "Base: separate"),
+        (instruct["own"], instruct_color, None, "Instruct: separate"),
+        (instruct["shared"], "white", "////", "Instruct: shared"),
+    ]
+    for j, (values, color, hatch, label) in enumerate(bars):
+        a.barh(
+            np.arange(len(DISPLAY_INDICES)) + (j - 1) * BAR_OFFSET,
+            [values[i] for i in DISPLAY_INDICES],
+            height=BAR_HEIGHT,
+            color=color,
+            edgecolor=instruct_color if hatch else color,
+            linewidth=0.8,
+            hatch=hatch,
+            label=label,
+        )
+    # Base map applied frozen to Instruct: one diamond per displayed setting,
+    # drawn on the Instruct-own row so the gap to that bar reads as retention.
+    frozen = instruct.get("base_frozen")
+    if frozen is not None:
+        rows = [(k, frozen[i]) for k, i in enumerate(DISPLAY_INDICES) if frozen[i] is not None]
+        a.plot(
+            [v for _, v in rows],
+            [k for k, _ in rows],
+            linestyle="none",
+            marker="D",
+            markersize=5,
+            markerfacecolor=base_color,
+            markeredgecolor="white",
+            markeredgewidth=0.6,
+            zorder=4,
+            label="Base → Instruct",
+        )
+    a.set_yticks(
+        range(6),
+        [
+            "Assistant\n(chat)",
+            "Helios",
+            "Wren",
+            "Dana",
+            "Vex",
+            "Assistant\n(story)",
+        ],
+    )
+    for tick in a.get_yticklabels():
+        tick.set_linespacing(TICK_LINESPACING)
+    a.set_ylim(5.5, -0.5)
+    a.set_xlim(0, 0.75)
+    a.set_xticks([0, 0.3, 0.6])
+    a.set_xlabel(better_label("Held-out $R^2$"))
+    fit_handles, fit_labels = a.get_legend_handles_labels()
+    # get_legend_handles_labels lists line artists before bars; keep the bars
+    # first and the frozen-transfer diamond last.
+    order = sorted(range(len(fit_labels)), key=lambda k: fit_labels[k] == "Base → Instruct")
+    fit_handles = [fit_handles[k] for k in order]
+    fit_labels = [fit_labels[k] for k in order]
+    # Panel A uses hue for model identity. Panel B uses neutral fill/outline for
+    # transfer method, avoiding a second meaning for the same teal bars.
+    transfer_color = INK
+    method_style = {
+        "frozen": (transfer_color, None),
+        "own": ("white", None),
+    }
+    expected_pairs = [
+        ("character", "other_characters"),
+        ("chat+character", "other_characters"),
+        PAIRS[0],
+        ("chat", "plain"),
+        *PAIRS[1:],
+    ]
+    if [(r["source"], r["target"]) for r in instruct["transfers"]] != expected_pairs:
+        raise ValueError("Unexpected transfer-panel rows")
+    displayed_transfers = [
+        r for r in instruct["transfers"] if (r["source"], r["target"]) in DISPLAY_PAIRS
+    ]
+    assert [(r["source"], r["target"]) for r in displayed_transfers] == DISPLAY_PAIRS
+    for j, pair in enumerate(displayed_transfers):
+        for k, (method, _, _) in enumerate(METHODS):
+            stat = pair["metrics"][method]
+            mean, folds = stat["mean"], stat["folds"]
+            color, hatch = method_style[method]
+            b.barh(
+                j + (k - 0.5) * BAR_OFFSET,
+                mean,
+                height=BAR_HEIGHT,
+                color=color,
+                edgecolor=transfer_color,
+                linewidth=0.8,
+                hatch=hatch,
+                xerr=[[max(0, mean - min(folds))], [max(0, max(folds) - mean)]],
+                error_kw={"ecolor": INK, "capsize": 2, "elinewidth": 0.8, "capthick": 0.8},
+            )
+    b.set_yticks(
+        range(5),
+        [
+            "One character\n→ other characters",
+            "Chat + one character\n→ other characters",
+            "Assistant (story)\n→ characters",
+            "Assistant (chat)\n→ assistant (story)",
+            "Assistant (story)\n→ assistant (chat)",
+        ],
+    )
+    for tick in b.get_yticklabels():
+        tick.set_linespacing(TICK_LINESPACING)
+    b.set_ylim(4.5, -0.5)
+    endpoints = [
+        v
+        for pair in displayed_transfers
+        for method, _, _ in METHODS
+        for v in pair["metrics"][method]["folds"]
+    ]
+    assert min(endpoints) >= -1.0 and max(endpoints) <= 0.75
+    b.set_xscale("function", functions=(compress_negative, expand_negative))
+    b.set_xlim(-1.0, 0.75)
+    b.set_xticks([-0.8, 0, 0.3, 0.6])
+    b.axvline(0, color=ROLES["control"].color, linewidth=0.8, zorder=0)
+    b.set_xlabel(better_label("Held-out $R^2$"))
+    method_handles = [
+        Patch(
+            facecolor=method_style[method][0],
+            edgecolor=transfer_color,
+            hatch=method_style[method][1],
+            label=label,
+            linewidth=0.8,
+        )
+        for method, label, _ in METHODS
+    ]
+    # Each legend stays above its own panel, including the longest label.
+    for x0, heading, handles, labels, ncol in [
+        (0.105, "Model and fit", fit_handles, fit_labels, 2),
+        (0.510, "Transfer method", method_handles, [m[1] for m in METHODS], 1),
+    ]:
+        legend_kicker(fig, x0, 0.978, heading)
+        fig.legend(
+            handles=handles,
+            labels=labels,
+            loc="upper left",
+            bbox_to_anchor=(x0 - 0.001, 0.945),
+            ncol=ncol,
+            frameon=False,
+            handlelength=1.3,
+            handletextpad=0.4,
+            columnspacing=0.9,
+            borderaxespad=0.0,
+            labelspacing=0.3,
+        )
+    conditions = ["1", "2", "3", "12", "1+2+3"]
+    matrices = {}
+    for i, (key, label, role) in enumerate(
+        [("pretrained", "Base", "base_model"), ("instruct", "Instruct", "post_trained")]
+    ):
+        # Both maps keep their published share of the panel band, so the shorter
+        # canvas shrinks them in step with panels A and B.
+        top = bottom + HEAT_TOP_FRAC * panel
+        ax = fig.add_axes(
+            [0.790, top - (i + 1) * heat_height - i * HEAT_GAP_IN / height_in, 0.140, heat_height]
+        )
+        if i == 0:
+            # Align the C kicker with the A and B kickers at 1.045 of panel height.
+            panel_header(ax, "C", "Turn transfer", kicker_y=1 + 0.11065 * panel / heat_height)
+        cells = data["turns"]["results"]["models"][key]["cells"]
+        matrix = []
+        for source in conditions:
+            selected = sorted(
+                [v for v in cells if v["source"] == source and v["method"] == "raw"],
+                key=lambda v: v["target_turn"],
+            )
+            assert [v["target_turn"] for v in selected] == list(range(1, 13))
+            matrix.append([v["r2"] for v in selected])
+        matrices[key] = matrix
+        im = ax.imshow(
+            matrix, aspect="auto", vmin=0, vmax=0.6, cmap="cividis", interpolation="nearest"
+        )
+        ax.set_title(label, loc="left", color=ROLES[role].color, pad=6)
+        ax.set_yticks(range(5), ["1", "2", "3", "12", "1–3"])  # noqa: RUF001 - numeric range
+        ax.set_ylabel("Train turn")
+        ax.set_xticks([0, 5, 11], ["1", "6", "12"])
+        if i == 0:
+            ax.tick_params(labelbottom=False)
+        else:
+            ax.set_xlabel("Evaluation turn")
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+    color_ax = fig.add_axes([0.950, bottom, 0.010, COLORBAR_FRAC * panel])
+    cb = fig.colorbar(im, cax=color_ax, ticks=[0, 0.3, 0.6])
+    cb.ax.set_title(better_label("$R^2$"), pad=12)
+    rendered = save_c2a_figure(
         fig,
-        stem,
-        title="Figure 8: one shared map across speaker identities",
-        subject=(
-            "Held-out R2 per speaker/framing (base vs post-trained) and the pooled map "
-            "as a fraction of each setting's own R2 (#2054 specialization ladder)"
-        ),
-        creator="figures/shared_speakers.py",
+        output / STEM,
+        include_width=fraction,
+        title="Maps across speakers, framings and turns",
+        subject="K5 seven-setting speaker maps and matched-count K1 turn transfer",
+        creator=f"figures/{Path(__file__).name}",
     )
     plt.close(fig)
+    return {"render": rendered["record"], "turn_matrices": matrices, "outputs": rendered}
 
-    sources = {
-        "speaker_lattice": r2054.LADDER,
-        "loco_pooled_units": r2054.LOCO,
-        "plain_text_cap_refit": r2054.CAP_POOLED_ARTIFACT,
-        "six_setting_pooled_refit": REFIT_SOURCE,
+
+def main(records_dir: Path, out_dir: Path) -> list[Path]:
+    """Render the figure from the archived plotting inputs; return written paths."""
+    source = records_dir / SOURCE_REL
+    data = json.loads(source.read_text())
+    out_dir.mkdir(parents=True, exist_ok=True)
+    result = render(data, out_dir)
+    rendered = result.pop("outputs")
+    result["data"] = data
+    result["sources"] = {
+        "archived_plotting_inputs": {
+            "path": str(SOURCE_REL),
+            "sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+        }
     }
-    frac_asis = [s / o for s, o in zip(values["shared_asis"], values["post_own"], strict=True)]
-    frac_shift = [s / o for s, o in zip(values["shared_shift"], values["post_own"], strict=True)]
-    sidecar = stem.with_suffix(".meta.json")
-    payload = {
-        "figure": "c4_shared_speakers",
-        "status": "Section 4.4 separate-vs-shared panels. Panel B: the shared map is refit "
-        "on the six instruction-tuned settings only (Section 4.4's own description), with "
-        "the plain-text cell's truncated rows dropped from the training pool.",
-        "style_version": STYLE_VERSION,
-        "plotting_script": "figures/shared_speakers.py",
-        "style_module": "context_answer/plotting/style.py",
-        "reproduction_command": "python figures/shared_speakers.py",
-        "git": as_metadata_dict(git_provenance()),
-        "sources": {
-            k: {
-                "path": str(p.relative_to(REPO)) if p.is_relative_to(REPO) else str(p),
-                "sha256": _sha256(p),
-            }
-            for k, p in sources.items()
-        },
-        "parity": {
-            "checked_against": str(parity_sidecar) if parity_sidecar else None,
-            "max_abs_diff": max_diff,
-            "tol": PARITY_TOL,
-        },
-        "record": outputs["record"],
-        "data": {
-            "panels": {
-                "A": "own predictor per setting, base_own and post_own side by side",
-                "B": "six-setting refit shared predictor as a fraction of post_own, ONE bar. "
-                "The per-setting shift is not drawn: it moves R^2 by at most 5e-6 here, "
-                "gated by parity_gate's shift-inertness assertion.",
-            },
-            "null_line_panel_A": null_line_value(values),
-            "speakers": [
-                {
-                    "label": values["labels"][i],
-                    "base_own": values["base_own"][i],
-                    "post_own": values["post_own"][i],
-                    "shared_asis": values["shared_asis"][i],
-                    "shared_shift": values["shared_shift"][i],
-                    "frac_shared_asis": frac_asis[i],
-                    "frac_shared_shift": frac_shift[i],
-                    "null_p975": values["null_p975"][i],
-                }
-                for i in range(len(values["labels"]))
-            ],
-        },
-        "output_sha256": {k: _sha256(p) for k, p in outputs.items() if k != "record"},
+    result["visual_encodings"] = {
+        "panel_a": (
+            "Base own (amber), Instruct own (teal), Instruct seven-setting shared "
+            "(hatched teal), base map frozen onto Instruct (amber diamonds)"
+        ),
+        "panel_b": "Instruct only: frozen (ink fill), target-trained (outline)",
+        "panel_b_error_bars": "Minimum and maximum across five fold means",
+        "panel_b_x_scale": "Negative held-out R^2 shown at one quarter scale",
+        "gridlines": "Removed; panel B retains a zero reference",
+        "character_aggregation": "Equal average of four characters within each fold",
+        "turn_heatmaps": {"colormap": "cividis", "limits": [0, 0.6]},
     }
-    sidecar.write_text(json.dumps(payload, indent=1) + "\n")
-    print(f"wrote {stem}.pdf/.png/.meta.json (+ grayscale)")
-    written = [p for k, p in outputs.items() if k != "record"]
-    written.append(sidecar)
+    result["script_sha256"] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    result["style_sha256"] = hashlib.sha256(
+        Path(save_c2a_figure.__code__.co_filename).read_bytes()
+    ).hexdigest()
+    result["output_sha256"] = {
+        path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in sorted(out_dir.glob(f"{STEM}*"))
+        if path.suffix in {".pdf", ".png"}
+    }
+    meta_path = out_dir / f"{STEM}.meta.json"
+    meta_path.write_text(json.dumps(result, indent=2) + "\n")
+    written = [rendered["pdf"], rendered["png"], rendered["grayscale"], meta_path]
+    for path in written:
+        print(f"  {path}")
     return written
 
 
-def null_line_value(values: dict) -> float:
-    """The drawn panel-A null level: mean of the banked per-cell null p97.5s."""
-    return float(np.mean([v for pair in values["null_p975"] for v in pair]))
-
-
 def _cli() -> None:
-    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--records", type=Path, default=DEFAULT_RECORDS)
-    ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
-    ap.add_argument(
-        "--parity-sidecar",
-        type=Path,
-        default=None,
-        help="optional sidecar written by THIS script (one carrying a data.speakers block) "
-        "to parity-check plotted values against; the shift-inertness assertion runs either way",
-    )
-    args = ap.parse_args()
-    main(args.records, args.out, args.parity_sidecar)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--records", type=Path, default=Path("records"))
+    parser.add_argument("--out", type=Path, default=Path("out"))
+    args = parser.parse_args()
+    main(args.records, args.out)
 
 
 if __name__ == "__main__":

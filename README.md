@@ -41,6 +41,32 @@ Each generator is a module under `figures/` with a
 `figures/registry.py`.
 
 <!-- FIGURE TABLE START -->
+| Figure | Paper location | Regenerate with | Ported from |
+|---|---|---|---|
+| `c1_controls_and_scaling` | Figure 2 (introduction); Appendix A.8 | `python -m figures.controls_and_scaling` | `scripts/make_paper_figure2.py` |
+| `c1_controls_and_scaling_legend` | Figure 2 (introduction); Appendix A.8 | `python -m figures.controls_and_scaling` | `scripts/make_paper_figure2.py` |
+| `c1_layer_sweep` | Figure 2 (introduction); Appendix A.8 | `python -m figures.controls_and_scaling` | `scripts/make_paper_figure2.py` |
+| `c1_crosslayer_grid` | Appendix A.8 | `python -m figures.crosslayer_grid` | `scripts/paper_fig_crosslayer_grid.py` |
+| `c1_distractor_scaling` | Appendix A.4 | `python -m figures.distractor_scaling` | `scripts/issue1901_distractor_curve.py` |
+| `c1_rollout_count` | Appendix A.12 | `python -m figures.rollout_count` | `scripts/issue1901_k_rollout_ablation.py` |
+| `c1_k5_length_control` | Method details | `python -m figures.k5_length_control` | `scripts/issue1902_k5_length_control.py` |
+| `c1_offpolicy_origin` | Appendix A.5 | `python -m figures.offpolicy_origin` | `scripts/section4_offpolicy_figure.py` |
+| `c1_posttraining_dynamics` | Section 4.3 | `python -m figures.posttraining_dynamics` | `scripts/section43_posttraining_onpolicy_figure.py` |
+| `c1_cot_capability` | Section 4.5 | `python -m figures.cot_capability` | `scripts/paper_fig_cot_capability.py` |
+| `c3_direction_r2_spectrum` | Section 4.2; Appendix A.3; method details | `python -m figures.section42` | `scripts/make_paper_section42_figures.py` |
+| `c3_features_and_shifts` | Section 4.2; Appendix A.3; method details | `python -m figures.section42` | `scripts/make_paper_section42_figures.py` |
+| `c3_refusal_swaps_by_class` | Section 4.2; Appendix A.3; method details | `python -m figures.section42` | `scripts/make_paper_section42_figures.py` |
+| `c3_sae_tier_gradient` | Section 4.2; Appendix A.3; method details | `python -m figures.section42` | `scripts/make_paper_section42_figures.py` |
+| `c3_qualitative_discrimination` | Appendix A.4 | `python -m figures.qualitative_discrimination` | `scripts/issue1901_qualitative_retrieval_failures.py` |
+| `c3_ctxans_geometry` | Appendix A.4 | `python -m figures.ctxans_geometry` | `scripts/issue1901_ctxans_geometry_figure.py` |
+| `c3_ctxans_projection` | Appendix A.4 | `python -m figures.ctxans_projection` | `scripts/issue1901_ctxans_projection_figure.py` |
+| `c4_shared_speakers` | Section 4.4 | `python -m figures.shared_speakers` | `figures/paper/source/c4_shared_speakers.py (Overleaf archive)` |
+| `c4_speaker_transfer_full` | Method details | `python -m figures.speaker_transfer_full` | `scripts/issue2054_story_transfer_appendix.py` |
+| `c4_turn_transfer_full` | Method details | `python -m figures.turn_transfer_full` | `scripts/plot_issue825_turn_matched.py` |
+| `c5_behavior_transfer_original_combined` | Section 4.6 | `python -m figures.behavior_transfer_original_combined` | `scripts/issue1739_old_combined_figure.py` |
+| `c5_preimage_qualitative_top100` | Method details | `python -m figures.preimage_qualitative_top100` | `scripts/issue1739_qualitative_preimage_figure.py` |
+
+`fig1_schematic` is a TikZ drawing; compile `figures/fig1_schematic/fig1_schematic.tex` with `pdflatex` (see its README).
 <!-- FIGURE TABLE END -->
 
 `figures/reference/` holds the PDF of each figure as submitted and, where

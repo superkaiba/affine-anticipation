@@ -17,7 +17,7 @@ import importlib
 import sys
 from pathlib import Path
 
-from figures.registry import GENERATORS, Generator, generator_for
+from figures.registry import GENERATORS, Generator, generator_for, markdown_table
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -33,7 +33,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--records", type=Path, default=REPO_ROOT / "records")
     parser.add_argument("--out", type=Path, default=REPO_ROOT / "out")
     parser.add_argument("--only", nargs="+", metavar="STEM", help="paper figure stems to render")
+    parser.add_argument("--table", action="store_true", help="print the README figure table and exit")
     args = parser.parse_args(argv)
+
+    if args.table:
+        print(markdown_table())
+        return 0
 
     if args.only:
         wanted = {generator_for(stem).module for stem in args.only}
