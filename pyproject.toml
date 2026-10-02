@@ -12,7 +12,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-pipeline = ["torch>=2.2", "huggingface_hub>=0.23", "anthropic>=0.30", "openai>=1.30"]
+pipeline = [
+  "torch>=2.2",
+  "huggingface_hub>=0.23",
+  "anthropic>=0.30",
+  "openai>=1.30",
+  "python-dotenv>=1.0",  # context_answer/orchestrate/env.py imports it at module level
+]
 dev = ["pytest>=8"]
 
 [build-system]
@@ -20,7 +26,12 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["context_answer*", "figures*"]
+# figures/ holds scripts run from the repository root. They are left out of the
+# installed distribution, and the root conftest.py puts them on sys.path for pytest.
+include = ["context_answer*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 100

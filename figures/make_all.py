@@ -48,12 +48,14 @@ def main(argv: list[str] | None = None) -> int:
 
     args.out.mkdir(parents=True, exist_ok=True)
     missing: list[str] = []
+    checked: list[str] = []
     for gen in gens:
         print(f"== {gen.module}  ({', '.join(gen.stems)})", flush=True)
         run_generator(gen, args.records, args.out)
         for stem in gen.stems:
             if args.only and stem not in args.only:
                 continue
+            checked.append(stem)
             pdf = args.out / f"{stem}.pdf"
             if pdf.exists() and pdf.stat().st_size > 0:
                 print(f"   wrote {pdf.relative_to(REPO_ROOT) if pdf.is_relative_to(REPO_ROOT) else pdf}"
@@ -64,7 +66,7 @@ def main(argv: list[str] | None = None) -> int:
     if missing:
         print(f"{len(missing)} figure(s) not written: {', '.join(missing)}", file=sys.stderr)
         return 1
-    print(f"{sum(len(g.stems) for g in gens)} paper figure(s) written to {args.out}")
+    print(f"{len(checked)} paper figure(s) written to {args.out}")
     return 0
 
 

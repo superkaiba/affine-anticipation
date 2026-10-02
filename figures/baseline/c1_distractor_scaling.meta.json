@@ -1,0 +1,54 @@
+{
+  "plotted": [
+    {
+      "n_added_distractors": 0,
+      "n_candidates": 942,
+      "n_wrong_candidates_per_query": 941,
+      "source_cell": "ridge|avg|keep_one|pool_1000",
+      "top1": 0.9734607218683652,
+      "top1_ci95_hi": 0.9830148619957537,
+      "top1_ci95_lo": 0.9628450106157113,
+      "top5": 1.0
+    },
+    {
+      "n_added_distractors": 1000,
+      "n_candidates": 1942,
+      "n_wrong_candidates_per_query": 1941,
+      "source_cell": "ridge|avg|keep_one|pool_2000",
+      "top1": 0.9522292993630573,
+      "top1_ci95_hi": 0.964968152866242,
+      "top1_ci95_lo": 0.9373673036093418,
+      "top5": 0.9989384288747346
+    },
+    {
+      "n_added_distractors": 4000,
+      "n_candidates": 4942,
+      "n_wrong_candidates_per_query": 4941,
+      "source_cell": "ridge|avg|keep_one|pool_5000",
+      "top1": 0.9256900212314225,
+      "top1_ci95_hi": 0.9426751592356688,
+      "top1_ci95_lo": 0.9087048832271762,
+      "top5": 0.9904458598726115
+    },
+    {
+      "n_added_distractors": 9058,
+      "n_candidates": 10000,
+      "n_wrong_candidates_per_query": 9999,
+      "source_cell": "per_n/963444/ridge/metrics/whiten_csls",
+      "top1": 0.9044585987261147,
+      "top1_ci95_hi": 0.9235668789808917,
+      "top1_ci95_lo": 0.8853503184713376,
+      "top5": 0.9830148619957537
+    },
+    {
+      "n_added_distractors": 19000,
+      "n_candidates": 19942,
+      "n_wrong_candidates_per_query": 19941,
+      "source_cell": "ridge|avg|keep_one|pool_20000",
+      "top1": 0.8726114649681529,
+      "top1_ci95_hi": 0.8938428874734607,
+      "top1_ci95_lo": 0.8503184713375797,
+      "top5": 0.9628450106157113
+    }
+  ]
+}
