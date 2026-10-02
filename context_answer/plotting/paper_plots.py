@@ -1,8 +1,13 @@
-"""Paper-quality plotting utilities.
+"""Paper-quality plotting utilities for the archived pipeline tier.
 
-This module centralises the rcParams, palette, save-format, and reproducibility
-metadata conventions for every figure that ships to a clean-result issue, the
-research log, or the paper.
+This module styles the figures the archived ``pipeline/scripts/`` steps draw, and
+nothing else: those nine scripts import ``set_paper_style``, ``savefig_paper`` and
+``paper_palette`` from here. The paper's own figures are styled by
+``context_answer.plotting.style`` instead, which owns the fixed authoring scale
+the manuscript depends on.
+
+Within that tier the module centralises the rcParams, palette, save-format, and
+reproducibility-metadata conventions, so a figure step sets no rcParams of its own.
 
 Design rationale
 ----------------
@@ -12,71 +17,44 @@ Design rationale
   spines removed (despine), colorblind-safe prop cycle.
 * **Colorblind palette** — the 8-colour Wong 2011 / IBM scheme, widely cited as
   safe for the two most common colour-vision deficiencies (deuteranopia,
-  protanopia). Limit yourself to ≤ 3-5 colours per chart (see
-  `.claude/skills/clean-results/SPEC.md` §14).
+  protanopia). Limit yourself to 3-5 colours per chart: past that the curated
+  hues stop being reliably distinguishable.
 * **Commit-pinned metadata** — every saved figure carries the git commit hash
   embedded in PDF metadata / PNG pnginfo plus a sidecar `<stem>.meta.json` so a
   reader can always trace a figure back to the code that produced it.
 * **Per-point data in the sidecar** — `savefig_paper` reads the plotted data
   back off the matplotlib artists (scatter offsets + nearest text labels, line
   vertices, bar heights, error-bar magnitudes) and embeds it under a `points`
-  key in the `.meta.json`, in the shape the EPS dashboard data viewer
-  (`dashboard/lib/task-data.ts`) reads directly. Every new figure thus
-  auto-populates the per-figure sortable/filterable table with no per-call-site
-  change. Pass `embed_data=False` to opt out.
+  key in the `.meta.json` as a flat array of scalar-cell objects, one object per
+  plotted point, with the axis labels as column names. That shape loads straight
+  into a table viewer, so every new figure carries its own per-point data with
+  no per-call-site change. Pass `embed_data=False` to opt out.
 
 Public API
 ----------
     set_paper_style        — set rcParams for paper-quality figures
     savefig_paper          — save to <dir>/<stem>.png AND <dir>/<stem>.pdf plus .meta.json
-    add_direction_arrow    — append ↑ better / ↓ better to an axis label
     paper_palette          — return N colorblind-safe hex colours (Wong 2011; N > 8
                              extends via perceptually-uniform colormap sampling)
-    paper_palette_blog     — return N colours from the soft "blog" palette (N > 8
-                             extends via perceptually-uniform colormap sampling)
-    paper_palette_role     — look up a colour by semantic role (primary / baseline / ...)
-    PAPER_COLORS           — semantic paper-wide colour registry (ICLR paper; one
-                             colour = one meaning across every paper figure)
-    paper_color            — look up a PAPER_COLORS concept (KeyError on a miss)
-    figsize_iclr_full      — full-textwidth ICLR figsize (5.5 in wide)
-    figsize_iclr_half      — half-textwidth ICLR figsize (2.75 in wide)
-    figsize_iclr_panels    — full-textwidth multi-panel-row ICLR figsize
-    set_title_subtitle     — left-aligned title + subtitle (Anthropic-blog register)
-    proportion_ci          — 95% Wald CI for a proportion
 
 Exemplar usage
 --------------
 The default target is ``"blog"`` (Anthropic / Apollo / LessWrong-blog
-register). Use it for clean-result issue figures and mentor slides:
+register):
 
 >>> from context_answer.plotting.paper_plots import (
-...     set_paper_style, set_title_subtitle, paper_palette_role, savefig_paper,
+...     paper_palette, savefig_paper, set_paper_style,
 ... )
 >>> set_paper_style()  # equivalent to set_paper_style("blog")
 >>> fig, ax = plt.subplots()
->>> colors = [paper_palette_role("primary"), paper_palette_role("baseline")]
->>> ax.bar([0, 1], [0.7, 0.4], color=colors)
->>> set_title_subtitle(
-...     ax,
-...     "Marker uptake holds across personas",
-...     subtitle="Source-rate per persona, n=200 each",
-... )
->>> savefig_paper(fig, "issue_281/marker_uptake", dir="figures/")
+>>> ax.bar([0, 1], [0.7, 0.4], color=paper_palette(2))
+>>> savefig_paper(fig, "marker_uptake", dir="figures/")
 
-For paper figures (NeurIPS / ICML — narrow column, dense, camera-ready):
+For denser, camera-ready-register figures (NeurIPS / ICML narrow column):
 
 >>> set_paper_style("neurips")
 >>> # ... build your figure ...
->>> savefig_paper(fig, "em_defense/pre_post_alignment", dir="figures/")
-
-For the ICLR context-answer-map paper (Times-alike serif, author-at-final-size,
-semantic paper-wide colours — spec: `.claude/skills/paper-plots/style-reference.md`
-§ "Paper (ICLR) target"):
-
->>> set_paper_style("iclr")
->>> fig, ax = plt.subplots(figsize=figsize_iclr_full())
->>> ax.plot(x, y, color=paper_color("instruct"))
->>> savefig_paper(fig, "heldout_r2_by_layer", dir="figures/paper/")
+>>> savefig_paper(fig, "pre_post_alignment", dir="figures/")
 """
 
 from __future__ import annotations
@@ -119,42 +97,6 @@ def _resolve_blog_fonts() -> list[str]:
     out = [name for name in _BLOG_FONT_CANDIDATES if name in installed]
     if "DejaVu Sans" not in out:
         out.append("DejaVu Sans")
-    return out
-
-
-# Times-alike serif chain for the "iclr" style. The ICLR style file sets the
-# body text in Times, so paper figures use a Times(-clone) serif: TeX Gyre
-# Termes and Nimbus Roman are metric-compatible URW Times clones; Liberation
-# Serif is the Times-New-Roman-metric fallback. matplotlib's bundled DejaVu
-# Serif is deliberately NOT in the chain — it reads visibly non-Times next to
-# the ICLR body text, so resolution fails loud instead of degrading to it.
-_ICLR_FONT_CANDIDATES: tuple[str, ...] = (
-    "Times New Roman",
-    "Times",
-    "TeX Gyre Termes",
-    "Nimbus Roman",
-    "Liberation Serif",
-)
-
-
-def _resolve_iclr_fonts() -> list[str]:
-    """Return the installed subset of the ICLR Times-alike serif chain.
-
-    Raises RuntimeError when NONE of the chain is installed, rather than
-    silently falling back to DejaVu Serif (the matplotlib default serif):
-    a DejaVu-set figure mismatches the ICLR Times body text and the drift
-    would otherwise surface only at camera-ready.
-    """
-    installed = {f.name for f in font_manager.fontManager.ttflist}
-    out = [name for name in _ICLR_FONT_CANDIDATES if name in installed]
-    if not out:
-        raise RuntimeError(
-            "set_paper_style('iclr'): none of the Times-alike serif fonts "
-            f"{list(_ICLR_FONT_CANDIDATES)} is installed on this machine; "
-            "install one (e.g. apt: fonts-texgyre or fonts-liberation, then "
-            "rebuild the matplotlib font cache) — refusing to fall back to "
-            "DejaVu Serif for paper figures."
-        )
     return out
 
 
@@ -219,84 +161,6 @@ def _extended_palette(base: list[str], n: int, fn_name: str) -> list[str]:
     return list(base) + extra
 
 
-# Semantic paper-wide colour registry for the ICLR context-answer-map paper.
-# ONE COLOUR = ONE MEANING across EVERY figure in the paper (stricter than the
-# per-writeup colour-consistency rule) — plot code binds colours by CONCEPT via
-# `paper_color(...)`, never by cycle position. Hexes are Wong 2011
-# colorblind-safe (plus the neutral gray / reference black conventions).
-PAPER_COLORS: dict[str, str] = {
-    "instruct": "#0072B2",  # blue - instruct model / the paper's featured arm
-    "base": "#E69F00",  # orange - base (pretrained) model
-    "identity_bias": "#009E73",  # green - identity-plus-bias baseline
-    "neural_map": "#D55E00",  # vermilion - MLP/neural map variants
-    "oracle_answer": "#CC79A7",  # purple - real-answer oracle
-    "persona_vector": "#56B4E9",  # sky blue - persona-vector method
-    "null": "#999999",  # gray - null / random / pathological arms
-    "reference": "#000000",  # black - ground truth / reference lines
-}
-
-
-def paper_color(concept: str) -> str:
-    """Return the paper-wide colour assigned to ``concept`` (see PAPER_COLORS).
-
-    Raises
-    ------
-    KeyError
-        Naming the valid keys, when ``concept`` is not registered — fail fast,
-        no silent default: a silently-wrong colour breaks the
-        one-colour-one-meaning contract across the paper's figures.
-    """
-    if concept not in PAPER_COLORS:
-        raise KeyError(
-            f"unknown paper colour concept {concept!r}; expected one of {sorted(PAPER_COLORS)}"
-        )
-    return PAPER_COLORS[concept]
-
-
-# Named-role aliases. Plot code reads `paper_palette_role("primary")` instead
-# of indexing into the palette by integer slot, so semantic intent travels
-# with the chart code. Roles map to per-style palettes — `"primary"` stays
-# semantically primary whether the active style is `"blog"` or `"neurips"`.
-_ROLE_ALIASES: dict[str, dict[str, str]] = {
-    "neurips": {
-        "primary": _PALETTE[0],  # Wong blue
-        "baseline": _PALETTE[1],  # Wong orange
-        "control": _PALETTE[2],  # Wong bluish green
-        "accent": _PALETTE[5],  # Wong vermillion
-        "neutral": "#5A5A5A",  # neutral grey for reference lines
-    },
-    "generic": {
-        "primary": _PALETTE[0],
-        "baseline": _PALETTE[1],
-        "control": _PALETTE[2],
-        "accent": _PALETTE[5],
-        "neutral": "#5A5A5A",
-    },
-    "blog": {
-        "primary": _BLOG_PALETTE[0],
-        "baseline": _BLOG_PALETTE[1],
-        "control": _BLOG_PALETTE[2],
-        "accent": _BLOG_PALETTE[3],
-        "neutral": _BLOG_PALETTE[5],
-    },
-    # Under "iclr" the generic roles resolve to the matching PAPER_COLORS
-    # concepts, so style-agnostic helpers keep working; paper figure code
-    # should still prefer the explicit `paper_color(<concept>)` binding.
-    "iclr": {
-        "primary": PAPER_COLORS["instruct"],
-        "baseline": PAPER_COLORS["base"],
-        "control": PAPER_COLORS["identity_bias"],
-        "accent": PAPER_COLORS["neural_map"],
-        "neutral": PAPER_COLORS["null"],
-    },
-}
-
-# Active style — set by `set_paper_style`. Used by `paper_palette_role` to
-# return colours from the right palette without forcing the caller to pass
-# the style name on every lookup.
-_ACTIVE_STYLE: str = "neurips"
-
-
 def paper_palette(n: int) -> list[str]:
     """Return ``n`` colorblind-safe hex colours.
 
@@ -318,94 +182,8 @@ def paper_palette(n: int) -> list[str]:
     return list(_PALETTE[:n])
 
 
-def paper_palette_blog(n: int) -> list[str]:
-    """Return ``n`` colours from the soft "blog" palette.
-
-    Companion to :func:`paper_palette` for the Anthropic-blog-register style.
-    ``n <= 8`` returns the first ``n`` curated blog colours (unchanged);
-    ``n > 8`` degrades gracefully via the same perceptually-uniform colormap
-    extension (see :func:`_extended_palette`), with a ``UserWarning``.
-
-    Raises
-    ------
-    ValueError
-        If ``n`` is not a positive int.
-    """
-    if not isinstance(n, int) or n < 1:
-        raise ValueError(f"n must be a positive int, got {n!r}")
-    if n > len(_BLOG_PALETTE):
-        return _extended_palette(_BLOG_PALETTE, n, "paper_palette_blog")
-    return list(_BLOG_PALETTE[:n])
-
-
-def paper_palette_role(role: str) -> str:
-    """Return the colour assigned to ``role`` for the active style.
-
-    Roles: ``"primary"``, ``"baseline"``, ``"control"``, ``"accent"``,
-    ``"neutral"``. Reads the style most recently set via :func:`set_paper_style`
-    so the same call produces the right palette for `"neurips"` vs `"blog"`.
-
-    Raises
-    ------
-    ValueError
-        If ``role`` is not a known role.
-    """
-    aliases = _ROLE_ALIASES[_ACTIVE_STYLE]
-    if role not in aliases:
-        raise ValueError(f"unknown role {role!r}; expected one of {sorted(aliases)}")
-    return aliases[role]
-
-
-# ICLR text-block width in inches (iclr .sty: \textwidth = 5.5in). Figures are
-# authored AT FINAL SIZE — included in LaTeX without a width= rescale, because
-# rescaling silently changes every realized font size on the page.
-ICLR_TEXTWIDTH_IN = 5.5
-# Inverse golden ratio — default height/width fraction (tueplots figsizes
-# module convention).
-_GOLDEN_FRAC = 0.618
-
-
-def figsize_iclr_full(height_frac: float = _GOLDEN_FRAC) -> tuple[float, float]:
-    """Full-textwidth ICLR figsize: ``(5.5, 5.5 * height_frac)`` inches.
-
-    The sanctioned FULL width for paper figures — author at final size and
-    include in LaTeX at natural size (no ``width=`` rescale).
-    """
-    return (ICLR_TEXTWIDTH_IN, ICLR_TEXTWIDTH_IN * height_frac)
-
-
-def figsize_iclr_half(height_frac: float = _GOLDEN_FRAC) -> tuple[float, float]:
-    """Half-textwidth ICLR figsize: ``(2.75, 2.75 * height_frac)`` inches.
-
-    The sanctioned HALF width — for side-by-side minipage pairs. Font sizes
-    are already final under the ``"iclr"`` style, so the half-width figure
-    needs no LaTeX rescale either.
-    """
-    half = ICLR_TEXTWIDTH_IN / 2.0
-    return (half, half * height_frac)
-
-
-def figsize_iclr_panels(ncols: int, height_in: float | None = None) -> tuple[float, float]:
-    """Full-textwidth ICLR multi-panel-row figsize: ``(5.5, height_in)`` inches.
-
-    ``height_in`` defaults to the golden-ratio height of ONE panel
-    (``5.5 / ncols * 0.618``), so an ``ncols``-across row of equal panels
-    fits the text block at final size.
-
-    Raises
-    ------
-    ValueError
-        If ``ncols`` is not a positive int.
-    """
-    if not isinstance(ncols, int) or ncols < 1:
-        raise ValueError(f"ncols must be a positive int, got {ncols!r}")
-    if height_in is None:
-        height_in = (ICLR_TEXTWIDTH_IN / ncols) * _GOLDEN_FRAC
-    return (ICLR_TEXTWIDTH_IN, height_in)
-
-
 def set_paper_style(
-    target: Literal["neurips", "generic", "blog", "iclr"] = "blog",
+    target: Literal["neurips", "generic", "blog"] = "blog",
     font_scale: float = 1.0,
 ) -> None:
     """Configure ``matplotlib`` rcParams for paper-quality figures.
@@ -422,30 +200,19 @@ def set_paper_style(
         ``"blog"`` — Anthropic / Apollo / LessWrong-blog register: soft
         sans-serif (Inter with fallbacks), wider canvas (6.5 x 4.0 in),
         off-white outer with white plotting area, light y-grid only,
-        frameless legend, semibold left-aligned titles. Use for clean-result
-        issues and mentor slides.
-        ``"iclr"`` — ICLR camera-ready (the context-answer-map paper):
-        Times-alike serif at FINAL size (5.5 x 3.4 in full-textwidth),
-        white opaque background, no grid, frameless legend. Colours bind by
-        concept via :func:`paper_color`; see :func:`_set_iclr_style` for the
-        style notes (hatch ban, heatmap colormaps, shared panel scales).
+        frameless legend, semibold left-aligned titles. The default, and what
+        the archived figure steps use.
     font_scale
         Multiplier applied to every font size. ``1.0`` leaves the defaults.
         Use ``1.2`` for talk-slide variants of the same figure.
     """
-    global _ACTIVE_STYLE
-
-    if target not in ("neurips", "generic", "blog", "iclr"):
-        raise ValueError(f"target must be 'neurips', 'generic', 'blog', or 'iclr', got {target!r}")
+    if target not in ("neurips", "generic", "blog"):
+        raise ValueError(f"target must be 'neurips', 'generic', or 'blog', got {target!r}")
 
     if target == "blog":
         _set_blog_style(font_scale)
-    elif target == "iclr":
-        _set_iclr_style(font_scale)
     else:
         _set_neurips_style(target, font_scale)
-
-    _ACTIVE_STYLE = target
 
 
 def _set_neurips_style(target: Literal["neurips", "generic"], font_scale: float) -> None:
@@ -495,86 +262,6 @@ def _set_neurips_style(target: Literal["neurips", "generic"], font_scale: float)
             "ps.fonttype": 42,
             "svg.fonttype": "none",
             # Colorblind-safe default prop cycle
-            "axes.prop_cycle": cycler(color=_PALETTE),
-        }
-    )
-
-
-def _set_iclr_style(font_scale: float) -> None:
-    """Apply the ICLR camera-ready rcParams (context-answer-map paper).
-
-    Author at FINAL size: the ICLR style file's ``\textwidth`` is 5.5 in, so
-    a full-width figure is 5.5 in wide and is included in LaTeX WITHOUT a
-    ``width=`` rescale (rescaling silently changes every realized font size).
-    Size via :func:`figsize_iclr_full` / :func:`figsize_iclr_half` /
-    :func:`figsize_iclr_panels`. Sizing constants follow the tueplots
-    ``figsizes``/``fonts`` modules' ICLR entries; nothing renders below 7 pt
-    at ``font_scale=1.0``.
-
-    Style notes (enforced at review, not by rcParams):
-
-    - **Hatching is BANNED under this target** — encode distinctions via
-      colour + marker/linestyle, or reduced alpha + a caption note.
-    - **Heatmaps** use ``viridis`` (sequential) / ``RdBu_r`` (diverging);
-      side-by-side comparable panels share ONE colour scale (same
-      ``vmin``/``vmax``, one shared colorbar).
-    - **Colours bind by concept** through the :data:`PAPER_COLORS` registry
-      via :func:`paper_color` — one colour = one meaning paper-wide.
-    """
-    base_font = 9.0 * font_scale
-    label_font = 9.0 * font_scale
-    title_font = 9.0 * font_scale
-    tick_font = 7.5 * font_scale
-    legend_font = 7.5 * font_scale
-
-    mpl.rcParams.update(
-        {
-            # Fonts — Times-alike serif chain (the ICLR body font is Times);
-            # resolved to installed fonts, fail-loud when none is installed
-            # (never DejaVu Serif). STIX math glyphs are Times-compatible.
-            "font.family": "serif",
-            "font.serif": _resolve_iclr_fonts(),
-            "mathtext.fontset": "stix",
-            "font.size": base_font,
-            "axes.labelsize": label_font,
-            "axes.titlesize": title_font,
-            "xtick.labelsize": tick_font,
-            "ytick.labelsize": tick_font,
-            "legend.fontsize": legend_font,
-            # Figure geometry — ICLR \textwidth is 5.5 in; golden-ratio
-            # height (5.5 x 3.4). Author at final size (figsize_iclr_*).
-            "figure.figsize": (5.5, 3.4),
-            "figure.dpi": 150,
-            "savefig.dpi": 300,
-            "savefig.bbox": "tight",
-            "savefig.pad_inches": 0.02,
-            # Backgrounds — white and OPAQUE everywhere: a transparent
-            # figure composites unpredictably over the PDF page background
-            # in some viewers.
-            "figure.facecolor": "#FFFFFF",
-            "axes.facecolor": "#FFFFFF",
-            "savefig.facecolor": "#FFFFFF",
-            "savefig.transparent": False,
-            # Hygiene — despine, NO grid, frameless legend.
-            "axes.spines.top": False,
-            "axes.spines.right": False,
-            "axes.grid": False,
-            "axes.grid.axis": "both",
-            "legend.frameon": False,
-            # Layout — constrained_layout at final size (no tight_layout).
-            "figure.constrained_layout.use": True,
-            # Lines / markers / error bars — neurips-density defaults.
-            "lines.linewidth": 1.5,
-            "lines.markersize": 5,
-            "errorbar.capsize": 3,
-            # Type-42 font embedding — camera-ready PDFs stay editable and
-            # avoid Type-3 bitmap-font rejections.
-            "pdf.fonttype": 42,
-            "ps.fonttype": 42,
-            "svg.fonttype": "none",
-            # Colorblind-safe prop cycle (Wong 2011 — the same hex family
-            # PAPER_COLORS draws from); semantic assignments go through
-            # paper_color(), never cycle position.
             "axes.prop_cycle": cycler(color=_PALETTE),
         }
     )
@@ -684,160 +371,12 @@ def _set_blog_style(font_scale: float) -> None:
     )
 
 
-def set_title_subtitle(
-    ax: plt.Axes,
-    title: str,
-    subtitle: str | None = None,
-    *,
-    source: str | None = None,
-    title_color: str = "#1A1A1A",
-    subtitle_color: str = "#5A5A5A",
-    source_color: str = "#7A7A7A",
-) -> None:
-    """Set a left-aligned title + subtitle above ``ax`` (Anthropic-blog style).
-
-    Replaces any existing axes title. Title is bold/semibold (using the
-    active ``axes.titleweight``); subtitle is regular weight, one point
-    smaller than the body font, in a secondary grey.
-
-    Parameters
-    ----------
-    ax
-        The axes to title.
-    title
-        The bold lede line. Should state the finding, not just describe
-        the chart axes (Sanders / Alley assertion-evidence).
-    subtitle
-        Optional regular-weight line under the title — usually carries the
-        descriptive context (sample size, condition, comparison anchor).
-    source
-        Optional italic source line at the bottom of the figure (e.g.
-        ``"Source: eval_results/issue_281, n=200/persona, commit abc123"``).
-    title_color
-        Title text colour. Default is near-black (``#1A1A1A``).
-    subtitle_color
-        Subtitle text colour. Default is mid-grey (``#5A5A5A``).
-    source_color
-        Source-line text colour. Default is light grey (``#7A7A7A``).
-    """
-    title_size = mpl.rcParams.get("axes.titlesize", 13)
-    title_weight = mpl.rcParams.get("axes.titleweight", "semibold")
-    body_size = mpl.rcParams.get("font.size", 11)
-    subtitle_size = max(body_size - 1, 8)
-
-    pad = 24 if subtitle else 12
-    ax.set_title(
-        title,
-        loc="left",
-        color=title_color,
-        fontweight=title_weight,
-        fontsize=title_size,
-        pad=pad,
-    )
-
-    if subtitle:
-        ax.annotate(
-            subtitle,
-            xy=(0.0, 1.0),
-            xytext=(0, 6),
-            xycoords="axes fraction",
-            textcoords="offset points",
-            ha="left",
-            va="bottom",
-            color=subtitle_color,
-            fontsize=subtitle_size,
-            fontweight="normal",
-        )
-
-    if source:
-        # `supxlabel` registers with constrained_layout so the source line
-        # never overlaps the x-tick labels. Left-aligned by setting x=0.02.
-        ax.figure.supxlabel(
-            source,
-            x=0.02,
-            ha="left",
-            color=source_color,
-            fontsize=max(body_size - 2, 7),
-            fontstyle="italic",
-        )
-
-
-def add_direction_arrow(
-    ax: plt.Axes,
-    axis: Literal["x", "y"] = "y",
-    direction: Literal["up", "down"] = "up",
-    label: str | None = None,
-) -> None:
-    """Append ``↑ better`` / ``↓ better`` to an existing axis label.
-
-    Parameters
-    ----------
-    ax
-        The ``Axes`` whose label should be annotated.
-    axis
-        ``"x"`` or ``"y"``.
-    direction
-        ``"up"`` for ``↑ better`` (higher is better), ``"down"`` for
-        ``↓ better`` (lower is better).
-    label
-        If given, replace the axis label with this string verbatim and do not
-        append an arrow. Useful when the caller wants a fully-custom label that
-        already includes a direction indicator.
-    """
-    if axis not in ("x", "y"):
-        raise ValueError(f"axis must be 'x' or 'y', got {axis!r}")
-    if direction not in ("up", "down"):
-        raise ValueError(f"direction must be 'up' or 'down', got {direction!r}")
-
-    if label is not None:
-        if axis == "x":
-            ax.set_xlabel(label)
-        else:
-            ax.set_ylabel(label)
-        return
-
-    arrow = "↑" if direction == "up" else "↓"
-    suffix = f" {arrow} better"
-    current = ax.get_xlabel() if axis == "x" else ax.get_ylabel()
-    if not current:
-        raise ValueError(
-            f"Cannot add direction arrow to an empty {axis}-axis label. "
-            f"Set the label first via ax.set_{axis}label(...)."
-        )
-    new_label = current + suffix
-    if axis == "x":
-        ax.set_xlabel(new_label)
-    else:
-        ax.set_ylabel(new_label)
-
-
-def proportion_ci(p: float, n: int, z: float = 1.96) -> tuple[float, float]:
-    """Return a Wald ``(lo, hi)`` confidence interval for a proportion.
-
-    Uses ``p ± z * sqrt(p * (1 - p) / n)``. Clamps the result to ``[0, 1]``.
-
-    Raises
-    ------
-    ValueError
-        If ``n <= 0`` or ``p`` is outside ``[0, 1]``.
-    """
-    if n <= 0:
-        raise ValueError(f"n must be positive, got {n}")
-    if not 0.0 <= p <= 1.0:
-        raise ValueError(f"p must be in [0, 1], got {p}")
-    half = z * ((p * (1.0 - p)) / n) ** 0.5
-    lo = max(0.0, p - half)
-    hi = min(1.0, p + half)
-    return (lo, hi)
-
-
 # Maximum number of plotted points to embed in a figure's `.meta.json` sidecar.
-# The dashboard viewer (`dashboard/lib/task-data.ts`) caps client-side at 5000
-# rows; we keep the in-sidecar embed well under that so committed sidecars stay
-# small and a pathological scatter cannot bloat the repo. Past the cap the
-# sidecar still records the full row count + that it was truncated. This 2000
-# in-sidecar cap is the BINDING one (it always trips first, below the viewer's
-# 5000), so the viewer's own `truncated` flag never fires on a sidecar we wrote.
+# Keeps committed sidecars small so a pathological scatter cannot bloat the repo,
+# and stays well under the few-thousand-row ceiling a browser table viewer can
+# render without stalling. Past the cap the sidecar still records the full row
+# count + that it was truncated, so a reader can tell a truncated embed from a
+# small figure.
 _MAX_SIDECAR_ROWS = 2000
 
 
@@ -845,14 +384,12 @@ def _finite_or_none(x: object) -> float | None:
     """Coerce ``x`` to a finite float, or ``None`` for NaN/±Inf/unparseable.
 
     Sidecar rows are emitted via ``json.dumps`` (default ``allow_nan=True``),
-    which serializes ``NaN`` / ``Infinity`` as bare JS-invalid literals. The
-    dashboard viewer's ``JSON.parse`` (``dashboard/lib/task-data.ts``) THROWS on
-    those, silently degrading the whole figure to provenance-only — and the loss
-    hits exactly the figures most likely to need the viewer (masked / missing
-    cells, common in plots that use ``np.nan`` / ``fillna``). Map every
-    non-finite numeric cell to ``None`` (→ JSON ``null``, which the viewer's
-    column-typer already handles) so the row survives with only the bad cell
-    dropped.
+    which serializes ``NaN`` / ``Infinity`` as bare literals that strict JSON
+    parsers reject. A reader that throws on those loses the whole figure's data
+    block, not just the bad cell — and the loss hits exactly the figures most
+    likely to need it (masked / missing cells, common in plots that use
+    ``np.nan`` / ``fillna``). Map every non-finite numeric cell to ``None``
+    (→ JSON ``null``) so the row survives with only the bad cell dropped.
     """
     import math
 
@@ -1180,13 +717,12 @@ def _extract_axes_data(fig: plt.Figure) -> list[dict[str, object]]:
     Column names come from the axis labels (``set_xlabel`` / ``set_ylabel``)
     where set, falling back to ``x`` / ``y``. The return is a list of artifact
     descriptors, one per extractable artist group, each with ``kind``,
-    ``label``, and a flat ``rows`` list of scalar-valued dicts — exactly the
-    shape ``dashboard/lib/task-data.ts`` normalizes (``points`` / ``rows`` /
-    array-of-objects).
+    ``label``, and a flat ``rows`` list of scalar-valued dicts — the
+    array-of-objects shape a table viewer loads without a transform step.
 
     Never raises: any artist whose data cannot be read is skipped, and a fully
     unreadable figure returns ``[]`` (the sidecar then carries provenance only,
-    and the viewer falls back to the figure link-out).
+    and a reader falls back to the rendered figure).
     """
     artifacts: list[dict[str, object]] = []
     for ax in fig.get_axes():
@@ -1279,8 +815,8 @@ def _axes_text_and_series(ax) -> tuple[dict[str, object], list[str]]:
         lt = _artist_text(leg.get_title())
         if lt:
             ax_d["legend_title"] = lt
-    # set_title_subtitle's subtitle is an ax.annotate → lands in ax.texts,
-    # alongside free-floating point labels — both rendered text.
+    # An annotated subtitle is an ax.annotate → lands in ax.texts, alongside
+    # free-floating point labels. Both are rendered text, so both belong here.
     ann = [s for s in (_artist_text(t) for t in ax.texts) if s]
     if ann:
         ax_d["annotations"] = ann[:_MAX_TEXT_ITEMS]
@@ -1306,18 +842,15 @@ def _extract_fig_text(fig: plt.Figure) -> dict[str, object] | None:
 
     Returns ``{"suptitle": str|None, "fig_texts": [str], "series": [str],
     "axes": [{...}]}`` or ``None`` when nothing was captured. Values are ONLY
-    ``str`` / ``None`` / ``list`` — never nested dicts-of-dicts — so the
-    dashboard viewer's ``normalizeToRows`` fallback can never mistake the
-    block for data rows (``dashboard/lib/task-data.ts``: ``isPlainObject``
-    excludes arrays/null, and the object-of-objects fallback descends at most
-    two levels, so a ``text`` dict whose values are str/None/list never
-    matches). Never raises: any unreadable artist/axes is skipped (the
-    ``_extract_axes_data`` contract). The block is what lets
-    ``scripts/verify_task_body.py`` checks 24/28/34 mechanically scan the
-    figure's titles / legends / series names (incident #1092: bare cell slugs
-    as panel titles + a beat claiming an unrendered series structure passed
-    every mechanical figure check because the sidecar carried no rendered
-    text).
+    ``str`` / ``None`` / ``list`` — never nested dicts-of-dicts — so a reader
+    that auto-detects tabular blocks by looking for an object of objects can
+    never mistake this block for data rows. Never raises: any unreadable
+    artist/axes is skipped (the ``_extract_axes_data`` contract). The block is
+    what lets a text-only check scan the figure's titles / legends / series
+    names without rendering it: before it existed, a figure carrying bare cell
+    slugs as panel titles, and prose claiming a series structure the figure
+    never drew, passed every mechanical check, because the sidecar recorded no
+    rendered text at all.
     """
     suptitle_obj = getattr(fig, "_suptitle", None)
     supx_obj = getattr(fig, "_supxlabel", None)
@@ -1352,20 +885,6 @@ def _extract_fig_text(fig: plt.Figure) -> dict[str, object] | None:
         out["series"] = dedup
     has_content = out["suptitle"] or out["fig_texts"] or axes_out or dedup
     return out if has_content else None
-
-
-def _git_commit_hash() -> str:
-    """DEPRECATED shim — delegates to `orchestrate.provenance._git_short_sha`.
-
-    Kept for the one external importer in
-    `experiments/leave_one_out_505/analyze_expanded.py` (per-issue script,
-    out of this round's rewrite scope). New code calls
-    `orchestrate.provenance.git_provenance()` and reads `commit_sha`
-    (or uses `commit_string()` for the `<sha>+dirty` legible form).
-    """
-    from context_answer.provenance import _git_short_sha
-
-    return _git_short_sha()
 
 
 def _new_render_id() -> str:
@@ -1407,37 +926,31 @@ def savefig_paper(  # noqa: C901 — deliberately flat save pipeline: presentati
     format keys, minus ``meta``). Together these make a cross-call
     PNG↔sidecar pairing failure — a ``formats=("pdf",)`` call or a second
     call over the same stem refreshing ``.meta.json`` while the committed
-    ``.png`` stays stale — mechanically detectable
-    (``scripts/verify_task_body.py`` check 52).
+    ``.png`` stays stale — mechanically detectable from the two files alone.
 
-    **Per-point data (dashboard data viewer).** The plotted data is read back
-    off the rendered matplotlib artists (``_extract_axes_data``): scatter point
-    offsets (with the nearest text label as an identifier column — e.g. persona
-    names), line vertices, bar heights, and error-bar magnitudes, with the axis
-    labels as column names. The result is emitted under ``points`` in the shape
-    the EPS dashboard's ``dashboard/lib/task-data.ts`` resolver reads directly
-    (an array of flat scalar-cell objects → a sortable/filterable table), so
-    every NEW figure auto-populates the per-figure data viewer with NO per-call
-    or dashboard change. Extraction never raises: an unreadable figure simply
-    yields a provenance-only sidecar and the viewer falls back to the figure
-    link-out. Large sets are capped at ``_MAX_SIDECAR_ROWS`` (with
-    ``data_truncated`` + ``total_points`` recorded). See the SPEC "Dashboard
-    data-artifact interface (Phase 2 contract)".
+    **Per-point data.** The plotted data is read back off the rendered
+    matplotlib artists (``_extract_axes_data``): scatter point offsets (with the
+    nearest text label as an identifier column — e.g. persona names), line
+    vertices, bar heights, and error-bar magnitudes, with the axis labels as
+    column names. The result is emitted under ``points`` as an array of flat
+    scalar-cell objects, one object per plotted point, which a table viewer
+    loads without a transform step, so every NEW figure carries its own
+    per-point data with no per-call-site change. Extraction never raises: an
+    unreadable figure simply yields a provenance-only sidecar. Large sets are
+    capped at ``_MAX_SIDECAR_ROWS`` (with ``data_truncated`` +
+    ``total_points`` recorded).
 
     Caller responsibility: every label baked into ``fig`` (axis labels, tick
     labels, legend entries, in-figure annotations) must be plain English, not
-    a Hydra slug (``sw_eng_C1``, ``c1_evil_wrong_em``, ``cond_4``) or
-    short-letter label (``M1``, ``Method A``, ``Bin C``, ``BS_E0``). See
-    ``.claude/skills/paper-plots/SKILL.md`` § 3.5 for the relabel pattern.
-    The clean-result-critic Lens 3 and interpretation-critic Lens 6 enforce
-    this on review; doing it here avoids a regenerate-the-figure bounce. Because
-    the axis labels also become the sidecar's column names, plain-English labels
-    make the data viewer's columns readable too. The rendered labels are ALSO
-    serialized into the sidecar under ``text`` (``_extract_fig_text``; opt out
-    with ``embed_text=False``) and mechanically scanned by
-    ``scripts/verify_task_body.py`` checks 24/28/34, so an opaque slug in a
-    title / legend / series name now WARNs at body-verification time instead
-    of waiting for the multimodal critics.
+    a config slug (``sw_eng_C1``, ``c1_evil_wrong_em``, ``cond_4``) or
+    short-letter label (``M1``, ``Method A``, ``Bin C``, ``BS_E0``): relabel at
+    the call site, because the alternative is regenerating the figure after
+    review. Because the axis labels also become the sidecar's column names,
+    plain-English labels make the data columns readable too. The rendered
+    labels are ALSO serialized into the sidecar under ``text``
+    (``_extract_fig_text``; opt out with ``embed_text=False``), so an opaque
+    slug in a title / legend / series name is detectable from the sidecar
+    without re-rendering the figure.
 
     Parameters
     ----------
@@ -1513,8 +1026,8 @@ def savefig_paper(  # noqa: C901 — deliberately flat save pipeline: presentati
     commit = commit_string(prov)  # `<sha>` or `<sha>+dirty` — for non-JSON channels
     # Per-CALL render id: binds this call's PNG to this call's sidecar so a
     # cross-call pairing failure (a formats=("pdf",) refresh / second call
-    # over the same stem leaving a stale .png beside a fresh .meta.json —
-    # incident #1768) is mechanically detectable (verify_task_body check 52).
+    # over the same stem leaving a stale .png beside a fresh .meta.json) is
+    # mechanically detectable by comparing the two files' render ids.
     render_id = _new_render_id()
     written: dict[str, Path] = {}
 
